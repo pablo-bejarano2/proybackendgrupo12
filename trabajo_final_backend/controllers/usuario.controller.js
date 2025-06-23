@@ -1,6 +1,10 @@
 const usuario = require("./../models/usuario");
 const Usuario = require("./../models/usuario");
 
+const { OAuth2Client } = require("google-auth-library");
+const cliente = new OAuth2Client(
+  "494017255948-hr66km4if477k8fcavbm6k3bio5e9s8d.apps.googleusercontent.com"
+);
 const usuarioCtrl = {};
 
 const bcrypt = require("bcrypt");
@@ -65,7 +69,7 @@ usuarioCtrl.loginUsuario = async (req, res) => {
       status: 1,
       msg: "Login exitoso",
       username: usuario.username,
-      perfil: usuario.rol,
+      rol: usuario.rol,
       userid: usuario._id,
     });
   } catch (error) {
@@ -73,6 +77,49 @@ usuarioCtrl.loginUsuario = async (req, res) => {
       status: 0,
       msg: "Error procesando operacion.",
     });
+  }
+};
+
+usuarioCtrl.loginGoogle = async (req, res) => {
+  const { token } = req.body;
+  //Verificar token de Google
+  try {
+    const ticket = await cliente.verifyIdToken({
+      idToken: token,
+      audience:
+        "494017255948-hr66km4if477k8fcavbm6k3bio5e9s8d.apps.googleusercontent.com",
+    });
+    const payload = ticket.getPayload();
+
+    // Buscar usuario por email
+    let usuario = await Usuario.findOne({ email: payload.email });
+    console.log(usuario);
+    if (!usuario) {
+      //Google no da el password
+      //Si no existe, crear usuario con password aleatorio
+      const saltRounds = 10;
+      const randomPassword = Math.random().toString(36).slice(-8); // password aleatorio
+      const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
+
+      usuario = new Usuario({
+        username: payload.name,
+        password: hashedPassword,
+        email: payload.email,
+        nombres: payload.given_name,
+        apellido: payload.family_name,
+        rol: "cliente",
+      });
+
+      await usuario.save();
+    }
+    console.log(payload); //para pruebas
+    res.status(200).json({
+      nombre: payload.name,
+      email: payload.email,
+      imagen: payload.picture,
+    });
+  } catch (error) {
+    res.status(401).json({ msg: "Token de Google inválido" });
   }
 };
 
