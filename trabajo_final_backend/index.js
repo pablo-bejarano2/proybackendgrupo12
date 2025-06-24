@@ -28,6 +28,8 @@ app.use(cors({ origin: "http://localhost:4200" }));
 // Ej. app.use('/api/agente', require('./routes/agente.route.js'));
 app.use("/api/categoria", require("./routes/categoria.route"));
 app.use("/api/producto", require("./routes/producto.route"));
+app.use("/api/direccion", require("./routes/direccion.route.js"));
+app.use("/api/cupon", require("./routes/cupon.route.js"));
 
 // ---------------------------------------------
 // Configuración del puerto del servidor
