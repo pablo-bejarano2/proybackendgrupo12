@@ -11,6 +11,25 @@ const bcrypt = require("bcrypt");
 
 usuarioCtrl.createUsuario = async (req, res) => {
   try {
+    //Verificar email
+    let emailRegistrado = await Usuario.findOne({ email: req.body.email });
+    if (emailRegistrado) {
+      return res.json({
+        status: 0,
+        msg: "El email ya está registrado",
+      });
+    }
+
+    // Verificar username
+    let usernameRegistrado = await Usuario.findOne({
+      username: req.body.username,
+    });
+    if (usernameRegistrado) {
+      return res.json({
+        status: 0,
+        msg: "El nombre de usuario ya está en uso",
+      });
+    }
     // Encriptar la contraseña antes de guardar
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -25,12 +44,12 @@ usuarioCtrl.createUsuario = async (req, res) => {
 
     await usuario.save();
     res.status(200).json({
-      status: "1",
+      status: 1,
       msg: "Usuario guardado correctamente",
     });
   } catch (error) {
     res.status(400).json({
-      status: "0",
+      status: 0,
       msg: "Error procesando operacion.",
       causa: error.message,
     });
