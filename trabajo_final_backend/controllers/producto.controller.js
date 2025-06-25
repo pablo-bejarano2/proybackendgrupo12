@@ -47,7 +47,6 @@ productoCtrl.createProducto = async (req, res) => {
       status: "ERROR",
       msg: "Error procesando operación",
       causa: error.message,
-      stack: error.stack
     });
   }
 };
@@ -175,7 +174,6 @@ productoCtrl.updateProducto = async (req, res) => {
       status: "ERROR",
       msg: "Error procesando operación",
       causa: error.message,
-      stack: error.stack
     });
   }
 };
