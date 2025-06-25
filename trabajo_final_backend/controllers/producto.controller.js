@@ -4,19 +4,51 @@ const productoCtrl = {};
 
 productoCtrl.createProducto = async (req, res) => {
   try {
-    const producto = new Producto(req.body);
-    await producto.save();
-    res.status(201).json(
-        { status: "OK",
-          msg: "Producto guardado correctamente",
-          producto: producto }
-        );
-  } catch (error) {
-    res.status(400).json({ 
+    // Obtén las URLs de las imágenes subidas
+    const imagenes = req.files ? req.files.map(file => file.path) : [];
+
+    // Recibe el nombre de la categoría en req.body.categoria
+    let { nombre, descripcion, precio, color, categoria, tallas } = req.body;
+
+    // Busca el ID de la categoría por nombre
+    const categoriaDoc = await Categoria.findOne({ nombre: new RegExp(`^${categoria}$`, 'i') });
+    if (!categoriaDoc) {
+      return res.status(400).json({
         status: "ERROR",
-        msg: "Error procesando operación",
-        causa: error.message // Valido para pruebas. 
-        });
+        msg: "Categoría no encontrada",
+      });
+    }
+    const categoriaId = categoriaDoc._id;
+
+    // Si tallas viene como string (por multipart/form-data), conviértelo a array
+    if (typeof tallas === "string") {
+      tallas = JSON.parse(tallas);
+    }
+
+    const producto = new Producto({
+      nombre,
+      descripcion,
+      precio,
+      color,
+      imagenes,
+      categoria: categoriaId,
+      tallas
+    });
+
+    await producto.save();
+    
+    res.status(201).json({
+      status: "OK",
+      msg: "Producto guardado correctamente",
+      producto: producto
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "ERROR",
+      msg: "Error procesando operación",
+      causa: error.message,
+      stack: error.stack
+    });
   }
 };
 
@@ -102,20 +134,48 @@ productoCtrl.getProductosByNombre = async (req, res) => {
   }
 };
 
+// PUT /api/producto/:id
 productoCtrl.updateProducto = async (req, res) => {
   try {
-    const producto = await Producto.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!producto) 
-        return res.status(404).json({
-            status: "ERROR",
-            msg: "Producto no encontrado",
-        });
-    res.json(producto);
+    let { nombre, descripcion, precio, color, categoria, tallas } = req.body;
+
+    // Buscar la categoría por nombre (case-insensitive)
+    const categoriaDoc = await Categoria.findOne({ nombre: new RegExp(`^${categoria}$`, 'i') });
+    if (!categoriaDoc) {
+      return res.status(400).json({ status: "ERROR", msg: "Categoría no encontrada" });
+    }
+    const categoriaId = categoriaDoc._id;
+
+    if (typeof tallas === "string") {
+      tallas = JSON.parse(tallas);
+    }
+
+    // Si se suben nuevas imágenes, reemplaza las anteriores
+    const imagenes = req.files && req.files.length > 0
+      ? req.files.map(file => file.path)
+      : undefined; // Si no se suben, no modificar
+
+    const updateData = {
+      nombre,
+      descripcion,
+      precio,
+      color,
+      categoria: categoriaId,
+      tallas
+    };
+    if (imagenes) updateData.imagenes = imagenes;
+
+    const producto = await Producto.findByIdAndUpdate(req.params.id, updateData, { new: true }).populate("categoria");
+    if (!producto) {
+      return res.status(404).json({ status: "ERROR", msg: "Producto no encontrado" });
+    }
+    res.json({ status: "OK", msg: "Producto actualizado", producto });
   } catch (error) {
     res.status(400).json({
-        status: "ERROR",
-        msg: "Error procesando operación",
-        causa: error.message // Valido para pruebas.
+      status: "ERROR",
+      msg: "Error procesando operación",
+      causa: error.message,
+      stack: error.stack
     });
   }
 };

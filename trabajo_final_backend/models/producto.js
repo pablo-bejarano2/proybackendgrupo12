@@ -12,7 +12,7 @@ const ProductoSchema = new Schema({
     precio: { type: Number, required: true },
     color: { type: String, required: true },
     imagenes: [{ type: String}], // Array de URLs de imágenes
-    talla: [TallaSchema], // Array de tallas con stock
+    tallas: [TallaSchema], // Array de tallas con stock
     categoria: { type: Schema.Types.ObjectId, ref: "Categoria", required: true },
 });
 
