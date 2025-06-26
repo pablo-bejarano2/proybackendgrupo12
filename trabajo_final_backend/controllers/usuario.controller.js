@@ -1,4 +1,3 @@
-const usuario = require("./../models/usuario");
 const Usuario = require("./../models/usuario");
 
 const { OAuth2Client } = require("google-auth-library");
@@ -8,6 +7,7 @@ const cliente = new OAuth2Client(
 const usuarioCtrl = {};
 
 const bcrypt = require("bcrypt");
+const usuario = require("./../models/usuario");
 
 usuarioCtrl.createUsuario = async (req, res) => {
   try {
@@ -38,11 +38,11 @@ usuarioCtrl.createUsuario = async (req, res) => {
     const usuario = new Usuario({
       ...req.body,
       password: hashedPassword,
+      rol: "cliente",
     });
 
-    console.log(usuario);
-
     await usuario.save();
+
     res.status(200).json({
       status: 1,
       msg: "Usuario guardado correctamente",
@@ -50,7 +50,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       status: 0,
-      msg: "Error procesando operacion.",
+      msg: "Error procesando operación.",
       causa: error.message,
     });
   }
@@ -64,13 +64,13 @@ usuarioCtrl.getUsuarios = async (req, res) => {
 usuarioCtrl.loginUsuario = async (req, res) => {
   try {
     const { username, password } = req.body;
-    //findOne retorna un objeto que cumpla con los criterios de busqueda
+    //Retorna un objeto que cumpla con los criterios de busqueda
     const usuario = await Usuario.findOne({ username });
 
     if (!usuario) {
       res.json({
         status: 0,
-        msg: "Usuario no encontrado",
+        msg: "Usuario o contraseña incorrectos.",
       });
     }
 
@@ -80,21 +80,24 @@ usuarioCtrl.loginUsuario = async (req, res) => {
     if (!match) {
       return res.json({
         status: 0,
-        msg: "Contraseña incorrecta",
+        msg: "Usuario o contraseña incorrectos.",
       });
     }
 
-    res.json({
+    res.status(200).json({
       status: 1,
       msg: "Login exitoso",
       username: usuario.username,
-      rol: usuario.rol,
-      userid: usuario._id,
+      //rol: usuario.rol,
+      userId: usuario._id,
+      email: usuario.email,
+      nombres: usuario.nombres,
+      apellido: usuario.apellido,
     });
   } catch (error) {
-    res.json({
+    res.status(400).json({
       status: 0,
-      msg: "Error procesando operacion.",
+      msg: "Error procesando operación.",
     });
   }
 };
@@ -108,8 +111,9 @@ usuarioCtrl.loginGoogle = async (req, res) => {
       audience:
         "494017255948-hr66km4if477k8fcavbm6k3bio5e9s8d.apps.googleusercontent.com",
     });
+    //Obtiene todos los datos del usuario de Google
     const payload = ticket.getPayload();
-
+    console.log(payload); //para pruebas
     // Buscar usuario por email
     let usuario = await Usuario.findOne({ email: payload.email });
     console.log(usuario);
@@ -128,17 +132,98 @@ usuarioCtrl.loginGoogle = async (req, res) => {
         apellido: payload.family_name,
         rol: "cliente",
       });
-
       await usuario.save();
     }
-    console.log(payload); //para pruebas
+
     res.status(200).json({
-      nombre: payload.name,
-      email: payload.email,
+      userId: usuario._id,
+      username: usuario.username,
+      email: usuario.email,
       imagen: payload.picture,
+      nombres: usuario.nombres,
+      apellido: usuario.apellido,
     });
   } catch (error) {
     res.status(401).json({ msg: "Token de Google inválido" });
+  }
+};
+
+usuarioCtrl.updateUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const datosActualizados = { ...req.body };
+
+    console.log("Datos Actualizados");
+    console.log(datosActualizados);
+
+    //Verificar email (borrar en caso de que no se actualice el email)
+    if (datosActualizados.email) {
+      const emailRegistrado = await Usuario.findOne({
+        email: datosActualizados.email,
+        _id: { $ne: id },
+      });
+      if (emailRegistrado) {
+        return res.json({
+          status: 0,
+          msg: "El email ya está registrado",
+        });
+      }
+    }
+
+    // Verificar username
+    if (datosActualizados.username) {
+      const usernameRegistrado = await Usuario.findOne({
+        username: datosActualizados.username,
+        _id: { $ne: id },
+      });
+      if (usernameRegistrado) {
+        return res.json({
+          status: 0,
+          msg: "El nombre de usuario ya está en uso",
+        });
+      }
+    }
+
+    const usuarioActualizado = await Usuario.findByIdAndUpdate(
+      id,
+      datosActualizados,
+      { new: true }
+    );
+
+    if (!usuarioActualizado) {
+      return res.json({
+        status: 0,
+        msg: "Usuario no encontrado",
+      });
+    }
+
+    res.status(200).json({
+      status: 1,
+      msg: "Usuario actualizado correctamente",
+      usuario: usuarioActualizado,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 0,
+      msg: "Error procesando operación.",
+      causa: error.message,
+    });
+  }
+};
+
+usuarioCtrl.deleteUsuario = async (req, res) => {
+  try {
+    await Usuario.deleteOne({ _id: req.params.id });
+    res.status(200).json({
+      status: 1,
+      msg: "Usuario eliminado correctamente",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 0,
+      msg: "Error procesando operación.",
+      causa: error.message,
+    });
   }
 };
 
