@@ -4,7 +4,27 @@ const PedidoController = {};
 
 PedidoController.createPedido = async (req, res) => {
     try {
-        const { items } = req.body;
+        const { items, cliente } = req.body;
+        
+        if(!cliente && !req.body.emailCliente) {
+            return res.status(400).json({ 
+                status: 'ERROR',
+                msg: 'El cliente o el email del cliente es obligatorio'
+            });
+        }
+        let emailD = null;
+        if(cliente) {
+            const clienteObj = await Pedido.model('Usuario').findById(cliente);
+            if (!clienteObj) {
+                return res.status(400).json({
+                    status: 'ERROR',
+                    msg: 'Cliente no encontrado'
+                });
+            }
+            emailD = clienteObj.email;
+        }else {
+            emailD = req.body.emailCliente 
+        }
         total = 0;
         const cupon = req.body.cupon || null;
 
@@ -27,13 +47,20 @@ PedidoController.createPedido = async (req, res) => {
         
         if(cupon) {
             cuponDoc = await Pedido.model('Cupon').findById(cupon);
+            if (!cuponDoc) {
+                return res.status(400).json({
+                    status: 'ERROR',
+                    msg: 'Cupón no encontrado'
+                });
+            }
             const descuento = cuponDoc.descuento || 0;
             total -= descuento;
         }
         const pedido = new Pedido({
             ...req.body,
             total: total || 0,
-            estado: 'pendiente'
+            estado: 'pendiente',
+            emailCliente: emailD
         });
 
         await pedido.save();
@@ -53,7 +80,7 @@ PedidoController.createPedido = async (req, res) => {
 
 PedidoController.getPedidos = async (req, res) => {
     try {
-        const pedidos = await Pedido.find().populate('items').populate('direccion').populate('cupon');
+        const pedidos = await Pedido.find().populate('items').populate('direccion').populate('cupon').populate('cliente');
         res.json({
             status: 'OK',
             msg: 'Pedidos obtenidos correctamente',
@@ -96,6 +123,13 @@ PedidoController.updatePedido = async (req, res) => {
         const { items, cupon } = req.body;
         let total = 0;
 
+        if (!items || items.length === 0) {
+            return res.status(400).json({
+                status: 'ERROR',
+                msg: 'El pedido debe contener al menos un item'
+            });
+        }
+
         const itemsDocs = await Pedido.model('ItemPedido').find({ _id: { $in: items } });
         if (itemsDocs.length !== items.length) {
             return res.status(400).json({
@@ -110,8 +144,17 @@ PedidoController.updatePedido = async (req, res) => {
         }
         if(cupon) {
             cuponDoc = await Pedido.model('Cupon').findById(cupon);
+            if (!cuponDoc) {
+                return res.status(400).json({
+                    status: 'ERROR',
+                    msg: 'Cupón no encontrado'
+                });
+            }
             const descuento = cuponDoc.descuento || 0;
             total -= descuento;
+        }
+        if (req.body.estado && ["pendiente", "enviado", "entregado", "cancelado"].includes(req.body.estado)) {
+            updateData.estado = req.body.estado;
         }
 
         const pedido = await Pedido.findByIdAndUpdate(
