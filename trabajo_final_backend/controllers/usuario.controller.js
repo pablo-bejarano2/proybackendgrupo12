@@ -61,6 +61,28 @@ usuarioCtrl.getUsuarios = async (req, res) => {
   res.status(200).json(usuarios);
 };
 
+usuarioCtrl.getUsuario = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const usuario = await Usuario.findById(id);
+
+    if (!usuario) {
+      return res.status(404).json({
+        status: 0,
+        msg: "El usuario no existe",
+      });
+    }
+
+    res.status(200).json(usuario);
+  } catch (error) {
+    res.status(400).json({
+      status: 0,
+      msg: "Error procesando operación.",
+      causa: error.message,
+    });
+  }
+};
+
 usuarioCtrl.loginUsuario = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -213,7 +235,14 @@ usuarioCtrl.updateUsuario = async (req, res) => {
 
 usuarioCtrl.deleteUsuario = async (req, res) => {
   try {
-    await Usuario.deleteOne({ _id: req.params.id });
+    const resultado = await Usuario.deleteOne({ _id: req.params.id });
+    if (resultado.deletedCount === 0) {
+      return res.status(404).json({
+        status: 0,
+        msg: "Usuario no encontrado",
+      });
+    }
+
     res.status(200).json({
       status: 1,
       msg: "Usuario eliminado correctamente",
@@ -225,6 +254,13 @@ usuarioCtrl.deleteUsuario = async (req, res) => {
       causa: error.message,
     });
   }
+};
+
+usuarioCtrl.getUsuariosByUsername = async (req, res) => {
+  var usuarios = await Usuario.find({
+    username: { $regex: req.params.username, $options: "i" },
+  });
+  res.status(200).json(usuarios);
 };
 
 module.exports = usuarioCtrl;
