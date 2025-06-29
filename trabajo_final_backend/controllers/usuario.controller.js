@@ -135,10 +135,10 @@ usuarioCtrl.loginGoogle = async (req, res) => {
     });
     //Obtiene todos los datos del usuario de Google
     const payload = ticket.getPayload();
-    console.log(payload); //para pruebas
+
     // Buscar usuario por email
     let usuario = await Usuario.findOne({ email: payload.email });
-    console.log(usuario);
+
     if (!usuario) {
       //Google no da el password
       //Si no existe, crear usuario con password aleatorio
@@ -174,9 +174,6 @@ usuarioCtrl.updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
     const datosActualizados = { ...req.body };
-
-    console.log("Datos Actualizados");
-    console.log(datosActualizados);
 
     //Verificar email (borrar en caso de que no se actualice el email)
     if (datosActualizados.email) {
