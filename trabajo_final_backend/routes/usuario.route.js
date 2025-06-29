@@ -10,5 +10,7 @@ router.post("/login/google", usuarioCtrl.loginGoogle);
 router.put("/:id", usuarioCtrl.updateUsuario);
 router.delete("/:id", usuarioCtrl.deleteUsuario);
 router.get("/", usuarioCtrl.getUsuarios);
+router.get("/:id", usuarioCtrl.getUsuario);
+router.get("/filtrado/:username", usuarioCtrl.getUsuariosByUsername);
 
 module.exports = router;
