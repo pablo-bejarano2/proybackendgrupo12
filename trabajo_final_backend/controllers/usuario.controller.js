@@ -1,13 +1,18 @@
 const Usuario = require("./../models/usuario");
 
+require("dotenv").config();
+
 const { OAuth2Client } = require("google-auth-library");
 const cliente = new OAuth2Client(
   "494017255948-hr66km4if477k8fcavbm6k3bio5e9s8d.apps.googleusercontent.com"
 );
 const usuarioCtrl = {};
 
+// Importar el módulo bcrypt para encriptar contraseñas
 const bcrypt = require("bcrypt");
-const usuario = require("./../models/usuario");
+
+// Importar el módulo jsonwebtoken para generar tokens JWT
+const jwt = require("jsonwebtoken");
 
 usuarioCtrl.createUsuario = async (req, res) => {
   try {
@@ -27,7 +32,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
     if (usernameRegistrado) {
       return res.json({
         status: 0,
-        msg: "El nombre de usuario ya está en uso",
+        msg: "El nombre de usuario ya está registrado",
       });
     }
     // Encriptar la contraseña antes de guardar
@@ -85,12 +90,13 @@ usuarioCtrl.getUsuario = async (req, res) => {
 
 usuarioCtrl.loginUsuario = async (req, res) => {
   try {
+    //1
     const { username, password } = req.body;
     //Retorna un objeto que cumpla con los criterios de busqueda
     const usuario = await Usuario.findOne({ username });
 
     if (!usuario) {
-      res.json({
+      return res.status(401).json({
         status: 0,
         msg: "Usuario o contraseña incorrectos.",
       });
@@ -100,19 +106,27 @@ usuarioCtrl.loginUsuario = async (req, res) => {
     const match = await bcrypt.compare(password, usuario.password);
 
     if (!match) {
-      return res.json({
+      return res.status(401).json({
         status: 0,
         msg: "Usuario o contraseña incorrectos.",
       });
     }
 
+    //Generar token JWT
+    const token = jwt.sign(
+      { id: usuario._id },
+      process.env.JWT_SECRET || "secretkey",
+      { expiresIn: "1h" }
+    );
+
     res.status(200).json({
       status: 1,
       msg: "Login exitoso",
+      token: token,
       username: usuario.username,
       //rol: usuario.rol,
       userId: usuario._id,
-      email: usuario.email,
+      email: usuario.email, //Retorno de información útil para el frontend
       nombres: usuario.nombres,
       apellido: usuario.apellido,
     });
@@ -136,7 +150,7 @@ usuarioCtrl.loginGoogle = async (req, res) => {
     //Obtiene todos los datos del usuario de Google
     const payload = ticket.getPayload();
 
-    // Buscar usuario por email
+    //Buscar usuario por email
     let usuario = await Usuario.findOne({ email: payload.email });
 
     if (!usuario) {
@@ -157,6 +171,13 @@ usuarioCtrl.loginGoogle = async (req, res) => {
       await usuario.save();
     }
 
+    //Generar token JWT para el usuario autenticado con Google
+    const jwtToken = jwt.sign(
+      { id: usuario._id },
+      process.env.JWT_SECRET || "secretkey",
+      { expiresIn: "1h" }
+    );
+
     res.status(200).json({
       userId: usuario._id,
       username: usuario.username,
@@ -164,6 +185,7 @@ usuarioCtrl.loginGoogle = async (req, res) => {
       imagen: payload.picture,
       nombres: usuario.nombres,
       apellido: usuario.apellido,
+      token: jwtToken,
     });
   } catch (error) {
     res.status(401).json({ msg: "Token de Google inválido" });
@@ -198,7 +220,7 @@ usuarioCtrl.updateUsuario = async (req, res) => {
       if (usernameRegistrado) {
         return res.json({
           status: 0,
-          msg: "El nombre de usuario ya está en uso",
+          msg: "El nombre de usuario ya está registrado",
         });
       }
     }
