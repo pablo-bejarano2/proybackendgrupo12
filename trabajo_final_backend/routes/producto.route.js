@@ -1,5 +1,5 @@
 const express = require("express");
-const productoCtrl = require("../controllers/producto.controller");
+const productoCtrl = require("../controllers/producto.controller.js");
 const upload = require("../config/multer");
 
 const router = express.Router();
@@ -15,7 +15,7 @@ router.post("/", upload.array("imagenes", 5), productoCtrl.createProducto);
 router.put("/:id", upload.array("imagenes", 5), productoCtrl.updateProducto);
 router.get("/", productoCtrl.getProductos);
 router.get("/categoria/:categoriaNombre", productoCtrl.getProductosByCategoria);
-router.get("/nombre/:nombre", productoCtrl.getProductosByNombre);
+router.get("/nombre", productoCtrl.getProductosByNombre);
 router.get("/:id", productoCtrl.getProductoById);
 router.delete("/:id", productoCtrl.deleteProducto);
 

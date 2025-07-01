@@ -11,8 +11,8 @@ productoCtrl.createProducto = async (req, res) => {
     let { nombre, descripcion, precio, color, categoria, tallas } = req.body;
 
     // Busca el ID de la categoría por nombre
-    const categoriaDoc = await Categoria.findOne({ nombre: new RegExp(`^${categoria}$`, 'i') });
-    if (!categoriaDoc) {
+    const categoriaDoc = await Categoria.findById(categoria);
+        if (!categoriaDoc) {
       return res.status(400).json({
         status: "ERROR",
         msg: "Categoría no encontrada",
@@ -112,7 +112,7 @@ productoCtrl.getProductoById = async (req, res) => {
 
 productoCtrl.getProductosByNombre = async (req, res) => {
   try {
-    const productos = await Producto.find({ nombre: new RegExp(req.params.nombre, 'i') }).populate("categoria");
+    const productos = await Producto.find({ nombre: new RegExp(req.query.nombre, 'i') }).populate("categoria");
     if (productos.length === 0) {
       return res.status(404).json({
         status: "ERROR",
@@ -139,7 +139,7 @@ productoCtrl.updateProducto = async (req, res) => {
     let { nombre, descripcion, precio, color, categoria, tallas } = req.body;
 
     // Buscar la categoría por nombre (case-insensitive)
-    const categoriaDoc = await Categoria.findOne({ nombre: new RegExp(`^${categoria}$`, 'i') });
+    const categoriaDoc = await Categoria.findById(categoria);
     if (!categoriaDoc) {
       return res.status(400).json({ status: "ERROR", msg: "Categoría no encontrada" });
     }
