@@ -32,7 +32,7 @@ app.use("/api/direccion", require("./routes/direccion.route.js"));
 app.use("/api/cupon", require("./routes/cupon.route.js"));
 app.use("/api/itemPedido", require("./routes/itemPedido.route.js"));
 app.use("/api/pedido", require("./routes/pedido.route.js"));
-
+app.use("/api/usuario", require("./routes/usuario.route"));
 // ---------------------------------------------
 // Configuración del puerto del servidor
 // --------------------------------------------
