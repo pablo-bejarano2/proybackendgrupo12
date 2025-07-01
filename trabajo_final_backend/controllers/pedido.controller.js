@@ -54,7 +54,7 @@ PedidoController.createPedido = async (req, res) => {
                 });
             }
             const descuento = cuponDoc.descuento || 0;
-            total -= descuento;
+            total -= (total*descuento)/100;
         }
         const pedido = new Pedido({
             ...req.body,
@@ -80,7 +80,7 @@ PedidoController.createPedido = async (req, res) => {
 
 PedidoController.getPedidos = async (req, res) => {
     try {
-        const pedidos = await Pedido.find().populate('items').populate('direccion').populate('cupon').populate('cliente');
+        const pedidos = await Pedido.find().populate({path: 'items', populate: {path: 'producto', select: 'nombre'}}).populate('direccion').populate('cupon').populate('cliente');
         res.json({
             status: 'OK',
             msg: 'Pedidos obtenidos correctamente',
@@ -122,7 +122,9 @@ PedidoController.updatePedido = async (req, res) => {
     try {
         const { items, cupon } = req.body;
         let total = 0;
+        let updateData = {};
 
+        //control de items
         if (!items || items.length === 0) {
             return res.status(400).json({
                 status: 'ERROR',
@@ -130,7 +132,20 @@ PedidoController.updatePedido = async (req, res) => {
             });
         }
 
-        const itemsDocs = await Pedido.model('ItemPedido').find({ _id: { $in: items } });
+        for (const itemFront of items) {
+            const itemDoc = await Pedido.model('ItemPedido').findById(itemFront._id);
+            if (!itemDoc) continue;
+            const producto = await Pedido.model('Producto').findById(itemDoc.producto);
+            if (!producto) continue;
+            const cantidad = itemFront.cantidad;
+            const subtotal = cantidad * producto.precio;
+            await Pedido.model('ItemPedido').findByIdAndUpdate(
+                itemFront._id,
+                { cantidad, subtotal }
+            );
+        }
+
+        const itemsDocs = await Pedido.model('ItemPedido').find({ _id: { $in: items.map(i=>i._id) } });
         if (itemsDocs.length !== items.length) {
             return res.status(400).json({
                 status: 'ERROR',
@@ -142,25 +157,34 @@ PedidoController.updatePedido = async (req, res) => {
                 total += item.subtotal || 0;
             }
         }
-        if(cupon) {
-            cuponDoc = await Pedido.model('Cupon').findById(cupon);
-            if (!cuponDoc) {
-                return res.status(400).json({
-                    status: 'ERROR',
-                    msg: 'Cupón no encontrado'
-                });
+        //control de cupon
+        let cuponDoc = null;
+        let cuponId = undefined;
+        if(cupon && cupon.codigo && cupon.codigo.trim() !== '') {
+            cuponDoc = await Pedido.model('Cupon').findOne({codigo : cupon.codigo.trim()});
+            if (cuponDoc) {
+                const descuento = cuponDoc.descuento || 0;
+                total -= (total*descuento)/100;
+                cuponId = cuponDoc._id;
+            }else{
+                cuponId = null;
             }
-            const descuento = cuponDoc.descuento || 0;
-            total -= descuento;
+            
+        }else{
+            cuponId=null;
         }
+
+        //actualizacion
         if (req.body.estado && ["pendiente", "enviado", "entregado", "cancelado"].includes(req.body.estado)) {
             updateData.estado = req.body.estado;
         }
-
+        
+        updateData = { ...req.body, ...updateData, total, items, cupon : cuponId };
+        
         const pedido = await Pedido.findByIdAndUpdate(
             req.params.id,
-            { ...req.body, total},
-            { new: true });
+            updateData,
+            { new: true }).populate({path: 'items', populate: {path: 'producto', select: 'nombre'}}).populate('direccion').populate('cupon').populate('cliente');
         if (!pedido) {
             return res.status(404).json({
                 status: 'ERROR',
