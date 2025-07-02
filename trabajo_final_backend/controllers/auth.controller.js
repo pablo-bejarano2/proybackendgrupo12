@@ -28,7 +28,7 @@ authCtrl.verifyToken = async (req, res, next) => {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
     //payload contiene la información del usuario que se ha autenticado
     req.userId = payload.id;
     next(); // Llamada al siguiente middleware o controlador

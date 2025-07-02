@@ -2,6 +2,8 @@ const Usuario = require("./../models/usuario");
 
 require("dotenv").config();
 
+const sanitizeHtml = require("sanitize-html");
+
 const { OAuth2Client } = require("google-auth-library");
 const cliente = new OAuth2Client(
   "494017255948-hr66km4if477k8fcavbm6k3bio5e9s8d.apps.googleusercontent.com"
@@ -13,11 +15,23 @@ const bcrypt = require("bcrypt");
 
 // Importar el módulo jsonwebtoken para generar tokens JWT
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 
+// Crea un nuevo usuario
 usuarioCtrl.createUsuario = async (req, res) => {
   try {
-    //Verificar email
-    let emailRegistrado = await Usuario.findOne({ email: req.body.email });
+    // Sanitizar los campos de entrada para evitar inyecciones de HTML
+    const camposSanitizados = {
+      username: sanitizeHtml(req.body.username),
+      email: sanitizeHtml(req.body.email),
+      nombres: sanitizeHtml(req.body.nombres),
+      apellido: sanitizeHtml(req.body.apellido),
+    };
+
+    //Verificar email registrado
+    let emailRegistrado = await Usuario.findOne({
+      email: camposSanitizados.email,
+    });
     if (emailRegistrado) {
       return res.json({
         status: 0,
@@ -25,9 +39,9 @@ usuarioCtrl.createUsuario = async (req, res) => {
       });
     }
 
-    // Verificar username
+    // Verificar username registrado
     let usernameRegistrado = await Usuario.findOne({
-      username: req.body.username,
+      username: camposSanitizados.username,
     });
     if (usernameRegistrado) {
       return res.json({
@@ -35,13 +49,16 @@ usuarioCtrl.createUsuario = async (req, res) => {
         msg: "El nombre de usuario ya está registrado",
       });
     }
+
+    console.log("Campos sanitizados:", camposSanitizados); //Comprobar que los campos se sanitizan
+
     // Encriptar la contraseña antes de guardar
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
     //Crear usuario con el password encriptado
     const usuario = new Usuario({
-      ...req.body,
+      ...camposSanitizados,
       password: hashedPassword,
       rol: "cliente",
     });
@@ -61,11 +78,13 @@ usuarioCtrl.createUsuario = async (req, res) => {
   }
 };
 
+// Obtiene todos los usuarios
 usuarioCtrl.getUsuarios = async (req, res) => {
   var usuarios = await Usuario.find();
   res.status(200).json(usuarios);
 };
 
+// Obtiene un usuario por ID
 usuarioCtrl.getUsuario = async (req, res) => {
   const id = req.params.id;
   try {
@@ -88,9 +107,20 @@ usuarioCtrl.getUsuario = async (req, res) => {
   }
 };
 
+// Iniciar sesión con usuario y contraseña
 usuarioCtrl.loginUsuario = async (req, res) => {
+  console.log("Datos de inicio de sesión:", req.body); // Comprobar que se reciben los datos
   try {
-    //1
+    //Validar que se envíen los campos necesarios
+    const errores = validationResult(req);
+    if (!errores.isEmpty()) {
+      return res.status(400).json({
+        status: 0,
+        msg: "Faltan campos requeridos",
+        errors: errores.array(),
+      });
+    }
+
     const { username, password } = req.body;
     //Retorna un objeto que cumpla con los criterios de busqueda
     const usuario = await Usuario.findOne({ username });
@@ -113,22 +143,20 @@ usuarioCtrl.loginUsuario = async (req, res) => {
     }
 
     //Generar token JWT
-    const token = jwt.sign(
-      { id: usuario._id },
-      process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     res.status(200).json({
       status: 1,
       msg: "Login exitoso",
       token: token,
-      username: usuario.username,
+      username: sanitizeHtml(usuario.username),
       //rol: usuario.rol,
       userId: usuario._id,
       email: usuario.email, //Retorno de información útil para el frontend
-      nombres: usuario.nombres,
-      apellido: usuario.apellido,
+      nombres: sanitizeHtml(usuario.nombres),
+      apellido: sanitizeHtml(usuario.apellido),
     });
   } catch (error) {
     res.status(400).json({
@@ -138,6 +166,7 @@ usuarioCtrl.loginUsuario = async (req, res) => {
   }
 };
 
+// Iniciar sesión con Google
 usuarioCtrl.loginGoogle = async (req, res) => {
   const { token } = req.body;
   //Verificar token de Google
@@ -172,19 +201,17 @@ usuarioCtrl.loginGoogle = async (req, res) => {
     }
 
     //Generar token JWT para el usuario autenticado con Google
-    const jwtToken = jwt.sign(
-      { id: usuario._id },
-      process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "1h" }
-    );
+    const jwtToken = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     res.status(200).json({
       userId: usuario._id,
-      username: usuario.username,
+      username: sanitizeHtml(usuario.username),
       email: usuario.email,
       imagen: payload.picture,
-      nombres: usuario.nombres,
-      apellido: usuario.apellido,
+      nombres: sanitizeHtml(usuario.nombres),
+      apellido: sanitizeHtml(usuario.apellido),
       token: jwtToken,
     });
   } catch (error) {
@@ -192,10 +219,18 @@ usuarioCtrl.loginGoogle = async (req, res) => {
   }
 };
 
+// Actualiza un usuario
 usuarioCtrl.updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    const datosActualizados = { ...req.body };
+    //Sanitizar campos editables
+    const datosActualizados = {
+      id: req.body._id,
+      username: sanitizeHtml(req.body.username),
+      email: req.body.email,
+      nombres: sanitizeHtml(req.body.nombres),
+      apellido: sanitizeHtml(req.body.apellido),
+    };
 
     //Verificar email (borrar en caso de que no se actualice el email)
     if (datosActualizados.email) {
@@ -252,6 +287,7 @@ usuarioCtrl.updateUsuario = async (req, res) => {
   }
 };
 
+// Elimina un usuario
 usuarioCtrl.deleteUsuario = async (req, res) => {
   try {
     const resultado = await Usuario.deleteOne({ _id: req.params.id });
@@ -275,6 +311,7 @@ usuarioCtrl.deleteUsuario = async (req, res) => {
   }
 };
 
+// Obtiene usuarios por nombre de usuario
 usuarioCtrl.getUsuariosByUsername = async (req, res) => {
   var usuarios = await Usuario.find({
     username: { $regex: req.params.username, $options: "i" },

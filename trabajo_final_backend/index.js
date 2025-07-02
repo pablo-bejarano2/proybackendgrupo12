@@ -20,7 +20,13 @@ var app = express();
 app.use(express.json());
 
 // Habilita CORS solo para el frontend en localhost:4200
-app.use(cors({ origin: "http://localhost:4200" }));
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // ---------------------------------------------
 // Rutas del proyecto
