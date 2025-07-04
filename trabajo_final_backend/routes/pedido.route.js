@@ -5,6 +5,7 @@ const Router = express.Router();
 Router.post("/", pedidoCtrl.createPedido);
 Router.get("/", pedidoCtrl.getPedidos);
 Router.get("/:id", pedidoCtrl.getPedidoById);
+Router.get("/cliente/:id", pedidoCtrl.getPedidoByUsserId);
 Router.put("/:id", pedidoCtrl.updatePedido);
 Router.delete("/:id", pedidoCtrl.deletePedido);
 module.exports = Router;
