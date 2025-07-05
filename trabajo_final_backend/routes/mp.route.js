@@ -101,7 +101,6 @@ router.get('/check-status/:external_reference', mpCtrl.checkQRPaymentStatus);
     }
 */
 router.post('/generate-static-qr', mpCtrl.generateStaticQR);
-
 /*  #swagger.tags = ['Pagos QR Estático']
     #swagger.summary = 'Listar todos los Puntos de Venta (POS)'
     #swagger.description = 'Obtiene una lista completa de todos los Puntos de Venta (POS) creados en la cuenta de Mercado Pago. Incluye información sobre los códigos QR estáticos disponibles.'
