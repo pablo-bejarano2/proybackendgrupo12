@@ -80,7 +80,11 @@ PedidoController.createPedido = async (req, res) => {
 
 PedidoController.getPedidos = async (req, res) => {
     try {
-        const pedidos = await Pedido.find().populate({path: 'items', populate: {path: 'producto', select: 'nombre'}}).populate('direccion').populate('cupon').populate('cliente');
+        const pedidos = await Pedido.find()
+        .populate({path: 'items', populate: {path: 'producto', select: 'nombre'}})
+        .populate('direccion')
+        .populate('cupon')
+        .populate('cliente');
         res.json({
             status: 'OK',
             msg: 'Pedidos obtenidos correctamente',
@@ -97,7 +101,11 @@ PedidoController.getPedidos = async (req, res) => {
 
 PedidoController.getPedidoById = async (req, res) => {
     try {
-        const pedido = await Pedido.findById(req.params.id).populate('items').populate('direccion').populate('cupon');
+        const pedido = await Pedido.findById(req.params.id)
+        .populate({path: 'items', populate: {path: 'producto', select: 'nombre'}})
+        .populate('direccion')
+        .populate('cupon')
+        .populate('cliente');
         if (!pedido) {
             return res.status(404).json({
                 status: 'ERROR',
@@ -118,6 +126,33 @@ PedidoController.getPedidoById = async (req, res) => {
     }
 }
 
+PedidoController.getPedidoByUsserId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const pedidos = await Pedido.find({ cliente: id })
+            .populate({ path: 'items', populate: { path: 'producto', select: 'nombre' } })
+            .populate('direccion')
+            .populate('cupon')
+            .populate('cliente');
+        if (!pedidos || pedidos.length === 0) {
+            return res.status(404).json({
+                status: 'ERROR',
+                msg: 'No se encontraron pedidos para este usuario'
+            });
+        }
+        res.json({
+            status: 'OK',
+            msg: 'Pedidos obtenidos correctamente',
+            pedidos
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'ERROR',
+            msg: 'Error procesando operación',
+            causa: error.message
+        });
+    }
+}
 PedidoController.updatePedido = async (req, res) => {
     try {
         const { items, cupon } = req.body;

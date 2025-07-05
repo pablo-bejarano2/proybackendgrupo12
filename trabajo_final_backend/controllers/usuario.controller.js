@@ -60,7 +60,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
     const usuario = new Usuario({
       ...camposSanitizados,
       password: hashedPassword,
-      rol: "cliente",
+      rol: req.body.rol || "cliente",
     });
 
     await usuario.save();
@@ -152,7 +152,7 @@ usuarioCtrl.loginUsuario = async (req, res) => {
       msg: "Login exitoso",
       token: token,
       username: sanitizeHtml(usuario.username),
-      //rol: usuario.rol,
+      rol: usuario.rol,
       userId: usuario._id,
       email: usuario.email, //Retorno de información útil para el frontend
       nombres: sanitizeHtml(usuario.nombres),
@@ -212,6 +212,7 @@ usuarioCtrl.loginGoogle = async (req, res) => {
       imagen: payload.picture,
       nombres: sanitizeHtml(usuario.nombres),
       apellido: sanitizeHtml(usuario.apellido),
+      rol: usuario.rol,
       token: jwtToken,
     });
   } catch (error) {
