@@ -33,7 +33,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
       email: camposSanitizados.email,
     });
     if (emailRegistrado) {
-      return res.json({
+      return res.status(409).json({
         status: 0,
         msg: "El email ya está registrado",
       });
@@ -44,13 +44,11 @@ usuarioCtrl.createUsuario = async (req, res) => {
       username: camposSanitizados.username,
     });
     if (usernameRegistrado) {
-      return res.json({
+      return res.status(409).json({
         status: 0,
         msg: "El nombre de usuario ya está registrado",
       });
     }
-
-    console.log("Campos sanitizados:", camposSanitizados); //Comprobar que los campos se sanitizan
 
     // Encriptar la contraseña antes de guardar
     const saltRounds = 10;
@@ -65,7 +63,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
 
     await usuario.save();
 
-    res.status(200).json({
+    res.status(201).json({
       status: 1,
       msg: "Usuario guardado correctamente",
     });
@@ -73,7 +71,6 @@ usuarioCtrl.createUsuario = async (req, res) => {
     res.status(400).json({
       status: 0,
       msg: "Error procesando operación.",
-      causa: error.message,
     });
   }
 };
@@ -109,7 +106,6 @@ usuarioCtrl.getUsuario = async (req, res) => {
 
 // Iniciar sesión con usuario y contraseña
 usuarioCtrl.loginUsuario = async (req, res) => {
-  console.log("Datos de inicio de sesión:", req.body); // Comprobar que se reciben los datos
   try {
     //Validar que se envíen los campos necesarios
     const errores = validationResult(req);
@@ -159,9 +155,9 @@ usuarioCtrl.loginUsuario = async (req, res) => {
       apellido: sanitizeHtml(usuario.apellido),
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       status: 0,
-      msg: "Error procesando operación.",
+      msg: "Error del servidor.",
     });
   }
 };
@@ -169,8 +165,17 @@ usuarioCtrl.loginUsuario = async (req, res) => {
 // Iniciar sesión con Google
 usuarioCtrl.loginGoogle = async (req, res) => {
   const { token } = req.body;
-  //Verificar token de Google
+
+  //Verificar validación del token
+  if (!token || typeof token != "string" || token.trim() === "") {
+    return res.status(400).json({
+      status: 0,
+      msg: "Token de Google requerido.",
+    });
+  }
+
   try {
+    //Verificar token de Google
     const ticket = await cliente.verifyIdToken({
       idToken: token,
       audience:
@@ -200,7 +205,7 @@ usuarioCtrl.loginGoogle = async (req, res) => {
       await usuario.save();
     }
 
-    //Generar token JWT para el usuario autenticado con Google
+    //Generar token JWT
     const jwtToken = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
