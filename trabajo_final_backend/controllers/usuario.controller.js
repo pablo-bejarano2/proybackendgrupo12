@@ -1,13 +1,19 @@
 const Usuario = require("./../models/usuario");
 
+// Importar dotenv para manejar variables de entorno
 require("dotenv").config();
 
+// Importar el módulo sanitize-html para sanitizar entradas
 const sanitizeHtml = require("sanitize-html");
 
+// Importar el cliente OAuth2 de Google
 const { OAuth2Client } = require("google-auth-library");
+
+// Crear una instancia del cliente OAuth2 con el ID de cliente de Google
 const cliente = new OAuth2Client(
   "494017255948-hr66km4if477k8fcavbm6k3bio5e9s8d.apps.googleusercontent.com"
 );
+
 const usuarioCtrl = {};
 
 // Importar el módulo bcrypt para encriptar contraseñas
@@ -15,7 +21,9 @@ const bcrypt = require("bcrypt");
 
 // Importar el módulo jsonwebtoken para generar tokens JWT
 const jwt = require("jsonwebtoken");
+// Importar el módulo de validación de Express
 const { validationResult } = require("express-validator");
+const { default: mongoose } = require("mongoose");
 
 // Crea un nuevo usuario
 usuarioCtrl.createUsuario = async (req, res) => {
@@ -70,22 +78,41 @@ usuarioCtrl.createUsuario = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       status: 0,
-      msg: "Error procesando operación.",
+      msg: "Error procesando operación",
     });
   }
 };
 
 // Obtiene todos los usuarios
 usuarioCtrl.getUsuarios = async (req, res) => {
-  var usuarios = await Usuario.find();
-  res.status(200).json(usuarios);
+  try {
+    const usuarios = await Usuario.find();
+    res.status(200).json({
+      status: 1,
+      msg: "Usuarios obtenidos correctamente",
+      data: usuarios,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 0,
+      msg: "Error del servidor",
+    });
+  }
 };
 
 // Obtiene un usuario por ID
 usuarioCtrl.getUsuario = async (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      status: 0,
+      msg: "ID de usuario inválido",
+    });
+  }
+
   try {
-    const usuario = await Usuario.findById(id);
+    const usuario = await Usuario.findById(id).select("-password"); // Evita mandar el password
 
     if (!usuario) {
       return res.status(404).json({
@@ -94,12 +121,15 @@ usuarioCtrl.getUsuario = async (req, res) => {
       });
     }
 
-    res.status(200).json(usuario);
+    res.status(200).json({
+      status: 1,
+      msg: "Usuario encontrado",
+      data: usuario,
+    });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       status: 0,
-      msg: "Error procesando operación.",
-      causa: error.message,
+      msg: "Error del servidor",
     });
   }
 };
@@ -107,7 +137,7 @@ usuarioCtrl.getUsuario = async (req, res) => {
 // Iniciar sesión con usuario y contraseña
 usuarioCtrl.loginUsuario = async (req, res) => {
   try {
-    //Validar que se envíen los campos necesarios
+    // Validar que se envíen los campos necesarios
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
       return res.status(400).json({
@@ -118,27 +148,27 @@ usuarioCtrl.loginUsuario = async (req, res) => {
     }
 
     const { username, password } = req.body;
-    //Retorna un objeto que cumpla con los criterios de busqueda
+    // Retorna un objeto que cumpla con los criterios de busqueda
     const usuario = await Usuario.findOne({ username });
 
     if (!usuario) {
       return res.status(401).json({
         status: 0,
-        msg: "Usuario o contraseña incorrectos.",
+        msg: "Usuario o contraseña incorrectos",
       });
     }
 
-    //Comparamos el password enviado con el almacenado
+    // Comparamos el password enviado con el almacenado
     const match = await bcrypt.compare(password, usuario.password);
 
     if (!match) {
       return res.status(401).json({
         status: 0,
-        msg: "Usuario o contraseña incorrectos.",
+        msg: "Usuario o contraseña incorrectos",
       });
     }
 
-    //Generar token JWT
+    // Generar token JWT
     const token = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
@@ -150,14 +180,14 @@ usuarioCtrl.loginUsuario = async (req, res) => {
       username: sanitizeHtml(usuario.username),
       rol: usuario.rol,
       userId: usuario._id,
-      email: usuario.email, //Retorno de información útil para el frontend
+      email: usuario.email, // Retorno de información útil para el frontend
       nombres: sanitizeHtml(usuario.nombres),
       apellido: sanitizeHtml(usuario.apellido),
     });
   } catch (error) {
     res.status(500).json({
       status: 0,
-      msg: "Error del servidor.",
+      msg: "Error del servidor",
     });
   }
 };
@@ -166,30 +196,30 @@ usuarioCtrl.loginUsuario = async (req, res) => {
 usuarioCtrl.loginGoogle = async (req, res) => {
   const { token } = req.body;
 
-  //Verificar validación del token
+  // Verificar validación del token
   if (!token || typeof token != "string" || token.trim() === "") {
     return res.status(400).json({
       status: 0,
-      msg: "Token de Google requerido.",
+      msg: "Token de Google requerido",
     });
   }
 
   try {
-    //Verificar token de Google
+    // Verificar token de Google
     const ticket = await cliente.verifyIdToken({
       idToken: token,
       audience:
         "494017255948-hr66km4if477k8fcavbm6k3bio5e9s8d.apps.googleusercontent.com",
     });
-    //Obtiene todos los datos del usuario de Google
+    // Obtiene todos los datos del usuario de Google
     const payload = ticket.getPayload();
 
-    //Buscar usuario por email
+    // Buscar usuario por email
     let usuario = await Usuario.findOne({ email: payload.email });
 
     if (!usuario) {
-      //Google no da el password
-      //Si no existe, crear usuario con password aleatorio
+      // Google no da el password
+      // Si no existe, crear usuario con password aleatorio
       const saltRounds = 10;
       const randomPassword = Math.random().toString(36).slice(-8); // password aleatorio
       const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
@@ -205,7 +235,7 @@ usuarioCtrl.loginGoogle = async (req, res) => {
       await usuario.save();
     }
 
-    //Generar token JWT
+    // Generar token JWT
     const jwtToken = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
@@ -229,28 +259,12 @@ usuarioCtrl.loginGoogle = async (req, res) => {
 usuarioCtrl.updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    //Sanitizar campos editables
+    // Sanitizar entrada de datos
     const datosActualizados = {
-      id: req.body._id,
       username: sanitizeHtml(req.body.username),
-      email: req.body.email,
-      nombres: sanitizeHtml(req.body.nombres),
+      nombres: sanitizeHtml(req.body.nombres), // Protección contra XSS
       apellido: sanitizeHtml(req.body.apellido),
     };
-
-    //Verificar email (borrar en caso de que no se actualice el email)
-    if (datosActualizados.email) {
-      const emailRegistrado = await Usuario.findOne({
-        email: datosActualizados.email,
-        _id: { $ne: id },
-      });
-      if (emailRegistrado) {
-        return res.json({
-          status: 0,
-          msg: "El email ya está registrado",
-        });
-      }
-    }
 
     // Verificar username
     if (datosActualizados.username) {
@@ -259,7 +273,7 @@ usuarioCtrl.updateUsuario = async (req, res) => {
         _id: { $ne: id },
       });
       if (usernameRegistrado) {
-        return res.json({
+        return res.status(409).json({
           status: 0,
           msg: "El nombre de usuario ya está registrado",
         });
@@ -273,7 +287,7 @@ usuarioCtrl.updateUsuario = async (req, res) => {
     );
 
     if (!usuarioActualizado) {
-      return res.json({
+      return res.status(404).json({
         status: 0,
         msg: "Usuario no encontrado",
       });
@@ -285,18 +299,27 @@ usuarioCtrl.updateUsuario = async (req, res) => {
       usuario: usuarioActualizado,
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       status: 0,
-      msg: "Error procesando operación.",
-      causa: error.message,
+      msg: "Error del servidor",
     });
   }
 };
 
 // Elimina un usuario
 usuarioCtrl.deleteUsuario = async (req, res) => {
+  const { id } = req.params;
+
+  //Validar que el ID sea válido
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      status: 0,
+      msg: "ID de usuario inválido",
+    });
+  }
+
   try {
-    const resultado = await Usuario.deleteOne({ _id: req.params.id });
+    const resultado = await Usuario.deleteOne({ _id: id });
     if (resultado.deletedCount === 0) {
       return res.status(404).json({
         status: 0,
@@ -309,20 +332,40 @@ usuarioCtrl.deleteUsuario = async (req, res) => {
       msg: "Usuario eliminado correctamente",
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       status: 0,
-      msg: "Error procesando operación.",
-      causa: error.message,
+      msg: "Error del servidor",
     });
   }
 };
 
-// Obtiene usuarios por nombre de usuario
+// Filtra usuarios de acuerdo a un nombre de usuario (búsqueda parcial)
 usuarioCtrl.getUsuariosByUsername = async (req, res) => {
-  var usuarios = await Usuario.find({
-    username: { $regex: req.params.username, $options: "i" },
-  });
-  res.status(200).json(usuarios);
+  const { username } = req.params;
+
+  if (!username || username.trim() === "") {
+    return res.status(400).json({
+      status: 0,
+      msg: "El nombre de usuario es requerido para la búsqueda",
+    });
+  }
+
+  try {
+    const usuarios = await Usuario.find({
+      username: { $regex: username, $options: "i" },
+    }).select("-password"); // Evita enviar contraseñas
+
+    res.status(200).json({
+      status: 1,
+      msg: "Usuarios encontrados",
+      data: usuarios,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 0,
+      msg: "Error del servidor",
+    });
+  }
 };
 
 module.exports = usuarioCtrl;
