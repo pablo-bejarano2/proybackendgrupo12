@@ -4,8 +4,7 @@ require("dotenv").config(); // Cargar variables de entorno desde .env
 const authCtrl = {};
 
 authCtrl.verifyToken = async (req, res, next) => {
-  //Verificar que las llamadas a la API tengan un header de autorización
-
+  // Verificar que las llamadas a la API tengan un header de autorización
   if (!req.headers.authorization) {
     return res.status(401).json({
       status: 0,
@@ -13,13 +12,12 @@ authCtrl.verifyToken = async (req, res, next) => {
     });
   }
   console.log("Token recibido:", req.headers.authorization);
-  //Se espera formato: Bearer XXX, interesa el token en posición 1 del arrayTexto
+  // Se espera formato: Bearer XXX, interesa el token en posición 1 del arrayTexto
   var arrayTexto = req.headers.authorization.split(" ");
   var token = null;
-  console.log("Array de texto:", arrayTexto);
-  //Verificar que el token sea válido
+
+  // Verificar que el token sea válido
   arrayTexto.length >= 2 ? (token = arrayTexto[1]) : (token = null);
-  console.log("Token extraído:", token);
   if (!token) {
     return res.status(401).json({
       status: 0,
@@ -29,7 +27,7 @@ authCtrl.verifyToken = async (req, res, next) => {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    //payload contiene la información del usuario que se ha autenticado
+    // payload contiene la información del usuario que se ha autenticado
     req.userId = payload.id;
     next(); // Llamada al siguiente middleware o controlador
   } catch (error) {
