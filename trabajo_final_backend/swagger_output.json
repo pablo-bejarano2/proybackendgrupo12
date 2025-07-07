@@ -61,15 +61,9 @@
       "description": "Gestión de items dentro de los pedidos."
     }
   ],
-  "schemes": [
-    "http"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "paths": {
     "/payment-link": {
       "get": {
@@ -274,9 +268,6 @@
           "200": {
             "description": "OK"
           },
-          "401": {
-            "description": "Unauthorized"
-          },
           "404": {
             "description": "Not Found"
           },
@@ -303,9 +294,6 @@
           },
           "400": {
             "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "404": {
             "description": "Not Found"
@@ -347,9 +335,6 @@
           "400": {
             "description": "Bad Request"
           },
-          "401": {
-            "description": "Unauthorized"
-          },
           "404": {
             "description": "Not Found"
           },
@@ -374,9 +359,6 @@
           },
           "400": {
             "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "404": {
             "description": "Not Found"
@@ -444,51 +426,600 @@
         }
       }
     },
-    "/login": {
+    "/api/usuario/": {
       "post": {
-        "description": "",
+        "tags": ["Usuarios"],
+        "summary": "Registro de nuevo usuario",
+        "description": "Permite registrar un nuevo usuario.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
         "parameters": [
           {
-            "name": "body",
+            "name": "usuario",
             "in": "body",
+            "required": true,
+            "description": "Datos del nuevo usuario",
             "schema": {
               "type": "object",
               "properties": {
                 "username": {
-                  "example": "any"
+                  "type": "string",
+                  "example": "juan123"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "juan@mail.com"
                 },
                 "password": {
-                  "example": "any"
+                  "type": "string",
+                  "example": "123456"
+                },
+                "nombres": {
+                  "type": "string",
+                  "example": "Juan"
+                },
+                "apellido": {
+                  "type": "string",
+                  "example": "Pérez"
+                },
+                "rol": {
+                  "type": "string",
+                  "example": "cliente"
                 }
+              },
+              "required": [
+                "username",
+                "email",
+                "password",
+                "nombres",
+                "apellido",
+                "rol"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Usuario creado exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuario guardado correctamente"
+                }
+              },
+              "xml": {
+                "name": "main"
               }
+            }
+          },
+          "400": {
+            "description": "Solicitud mal formada o error de validación",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación."
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto: email o username ya registrados",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "El email ya está registrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Retorno de todos los usuarios",
+        "description": "Obtiene la lista de todos los usuarios",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuarios obtenidos correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuarios obtenidos correctamente"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60af8840f1a4c72f243b6e5d"
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "juan123"
+                      },
+                      "nombres": {
+                        "type": "string",
+                        "example": "Juan Ariel"
+                      },
+                      "apellido": {
+                        "type": "string",
+                        "example": "Velazco"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "juan123@gmail.com"
+                      },
+                      "rol": {
+                        "type": "string",
+                        "example": "cliente"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Token de autorización no válido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Token de autorización no válido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error del servidor"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuario/login": {
+      "post": {
+        "tags": ["Usuarios"],
+        "summary": "Inicio de sesión",
+        "description": "Permite inicio de sesión con nombre de usuario y contraseña.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "credenciales",
+            "in": "body",
+            "required": true,
+            "description": "Credenciales de inicio de sesión",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "juan123"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "123456"
+                }
+              },
+              "required": ["username", "password"]
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Inicio de sesión exitoso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Login exitoso"
+                },
+                "token": {
+                  "type": "string",
+                  "example": "jwt_token_aqui"
+                },
+                "username": {
+                  "type": "string",
+                  "example": "juan123"
+                },
+                "rol": {
+                  "type": "string",
+                  "example": "cliente"
+                },
+                "userId": {
+                  "type": "string",
+                  "example": "64b789123abc456def789abc"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "juan@mail.com"
+                },
+                "nombres": {
+                  "type": "string",
+                  "example": "Juan"
+                },
+                "apellido": {
+                  "type": "string",
+                  "example": "Pérez"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Error de validación o petición mal formada",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Faltan campos requeridos"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "msg": {
+                        "type": "string",
+                        "example": "El campo username es obligatorio"
+                      },
+                      "param": {
+                        "type": "string",
+                        "example": "username"
+                      },
+                      "location": {
+                        "type": "string",
+                        "example": "body"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Usuario o contraseña incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuario o contraseña incorrectos."
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error interno del servidor."
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }
     },
-    "/login/google": {
+    "/api/usuario/login/google": {
       "post": {
-        "description": "",
+        "tags": ["Usuarios"],
+        "summary": "Inicio de sesión con Google",
+        "description": "Permite iniciar sesión con un token JWT de Google. Si el usuario no existe en la base de datos, se crea automáticamente.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
         "parameters": [
           {
-            "name": "body",
+            "name": "token",
             "in": "body",
+            "required": true,
+            "description": "Token JWT proporcionado por Google después de autenticarse",
             "schema": {
               "type": "object",
               "properties": {
                 "token": {
-                  "example": "any"
+                  "type": "string",
+                  "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjY4MzFh..."
+                }
+              },
+              "required": ["token"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inicio de sesión exitoso con Google",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "userId": {
+                  "type": "string",
+                  "example": "64e1234567abcde890f12345"
+                },
+                "username": {
+                  "type": "string",
+                  "example": "Juan Pérez"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "juan@gmail.com"
+                },
+                "imagen": {
+                  "type": "string",
+                  "example": "https://lh3.googleusercontent.com/a/AEdFTp6iABC123"
+                },
+                "nombres": {
+                  "type": "string",
+                  "example": "Juan"
+                },
+                "apellido": {
+                  "type": "string",
+                  "example": "Pérez"
+                },
+                "rol": {
+                  "type": "string",
+                  "example": "cliente"
+                },
+                "token": {
+                  "type": "string",
+                  "example": "jwt_token_generado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Falta el token o es inválido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Token de Google requerido."
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Token de Google inválido o expirado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Token de Google inválido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error interno al procesar el inicio de sesión"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuario/{id}": {
+      "put": {
+        "tags": ["Usuarios"],
+        "summary": "Actualización de usuario",
+        "description": "Actualiza un usuario existente",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del usuario a actualizar"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Datos del usuario a actualizar",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "application/json": {
+                  "type": "object",
+                  "properties": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "example": "object"
+                        },
+                        "properties": {
+                          "type": "object",
+                          "properties": {
+                            "username": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "example": "string"
+                                },
+                                "example": {
+                                  "type": "string",
+                                  "example": "juan123"
+                                }
+                              }
+                            },
+                            "nombres": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "example": "string"
+                                },
+                                "example": {
+                                  "type": "string",
+                                  "example": "Juan Ariel"
+                                }
+                              }
+                            },
+                            "apellido": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "example": "string"
+                                },
+                                "example": {
+                                  "type": "string",
+                                  "example": "Velazco"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -496,23 +1027,151 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Usuario actualizado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuario actualizado correctamente"
+                },
+                "usuario": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60af8840f1a4c72f243b6e5d"
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "juan123"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "passwordDeJuan"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "juan123@gmail.com"
+                    },
+                    "nombres": {
+                      "type": "string",
+                      "example": "Juan Ariel"
+                    },
+                    "apellido": {
+                      "type": "string",
+                      "example": "Velazco"
+                    },
+                    "rol": {
+                      "type": "string",
+                      "example": "cliente"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Token de autorización no válido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Token de autorización no válido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuario no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto: nombre de usuario ya registrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "El nombre de usuario ya está registrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error del servidor"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
-        }
-      }
-    },
-    "/filtrado/{username}": {
-      "get": {
-        "description": "",
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": ["Usuarios"],
+        "summary": "Eliminación de usuario",
+        "description": "Elimina un usuario existente por su ID",
         "parameters": [
           {
-            "name": "username",
+            "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "ID del usuario a eliminar"
           },
           {
             "name": "authorization",
@@ -522,12 +1181,392 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Usuario eliminado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuario eliminado correctamente"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "ID de usuario inválido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "ID de usuario no es válido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Token de autorización no válido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Token de autorización no válido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuario no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error del servidor"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Búsqueda de un usuario por ID",
+        "description": "Obtiene un usuario por su ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del usuario a consultar"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuario encontrado"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60af8840f1a4c72f243b6e5d"
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "juan123"
+                    },
+                    "nombres": {
+                      "type": "string",
+                      "example": "Juan Ariel"
+                    },
+                    "apellido": {
+                      "type": "string",
+                      "example": "Velazco"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "juan123@gmail.com"
+                    },
+                    "rol": {
+                      "type": "string",
+                      "example": "cliente"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "ID inválido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "ID de usuario no es válido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Token de autorización no válido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Token de autorización no válido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "El usuario no existe",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "El usuario no existe"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error del servidor"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuarios/filtrado/{username}": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Búsqueda de usuarios de acuerdo a un nombre de usuario",
+        "description": "Busca usuarios por coincidencia parcial en el nombre de usuario (insensible a mayúsculas/minúsculas)",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Texto parcial del nombre de usuario a buscar"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuarios encontrados",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Usuarios encontrados"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60af8840f1a4c72f243b6e5d"
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "juan123"
+                      },
+                      "nombres": {
+                        "type": "string",
+                        "example": "Juan Ariel"
+                      },
+                      "apellido": {
+                        "type": "string",
+                        "example": "Velazco"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "juan123@gmail.com"
+                      },
+                      "rol": {
+                        "type": "string",
+                        "example": "cliente"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Parámetro inválido o vacío",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "El nombre de usuario es requerido para la búsqueda"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Token de autorización no válido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Token de autorización no válido"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error procesando búsqueda",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "number",
+                  "example": 0
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error del servidor"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/cliente/{id}": {
@@ -619,10 +1658,7 @@
         },
         "required": {
           "type": "array",
-          "example": [
-            "amount",
-            "description"
-          ],
+          "example": ["amount", "description"],
           "items": {
             "type": "string"
           }
@@ -840,12 +1876,7 @@
                 },
                 "enum": {
                   "type": "array",
-                  "example": [
-                    "pending",
-                    "approved",
-                    "rejected",
-                    "cancelled"
-                  ],
+                  "example": ["pending", "approved", "rejected", "cancelled"],
                   "items": {
                     "type": "string"
                   }
@@ -1727,10 +2758,7 @@
                 },
                 "enum": {
                   "type": "array",
-                  "example": [
-                    "payment",
-                    "merchant_order"
-                  ],
+                  "example": ["payment", "merchant_order"],
                   "items": {
                     "type": "string"
                   }
