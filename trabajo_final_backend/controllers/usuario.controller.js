@@ -169,7 +169,7 @@ usuarioCtrl.loginUsuario = async (req, res) => {
     }
 
     // Generar token JWT
-    const token = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: usuario._id, rol: usuario.rol }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -236,7 +236,7 @@ usuarioCtrl.loginGoogle = async (req, res) => {
     }
 
     // Generar token JWT
-    const jwtToken = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
+    const jwtToken = jwt.sign({ id: usuario._id, rol: usuario.rol }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
