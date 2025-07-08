@@ -10,6 +10,13 @@ productoCtrl.createProducto = async (req, res) => {
     // Recibe el nombre de la categoría en req.body.categoria
     let { nombre, descripcion, precio, color, categoria, tallas } = req.body;
 
+    const productoExistente = await Producto.findOne({ nombre });
+    if (productoExistente) {
+      return res.status(400).json({
+        status: "ERROR",
+        msg: "Ya existe un producto con ese nombre",
+      });
+    }
     // Busca el ID de la categoría por nombre
     const categoriaDoc = await Categoria.findById(categoria);
         if (!categoriaDoc) {
@@ -138,6 +145,13 @@ productoCtrl.updateProducto = async (req, res) => {
   try {
     let { nombre, descripcion, precio, color, categoria, tallas } = req.body;
 
+    const productoExistente = await Producto.findOne({ nombre, _id: { $ne: req.params.id } });
+    if (productoExistente) {
+      return res.status(409).json({
+        status: "ERROR",
+        msg: "Ya existe un producto con ese nombre"
+      });
+    }
     // Buscar la categoría por nombre (case-insensitive)
     const categoriaDoc = await Categoria.findById(categoria);
     if (!categoriaDoc) {

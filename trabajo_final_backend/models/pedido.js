@@ -30,6 +30,7 @@ const PedidoSchema = new Schema({
     metodoPago: { type: String, enum: ["tarjeta", "efectivo", "transferencia", "qr"], required: true },
     direccion: { type: Schema.Types.ObjectId, ref: "Direccion", required: true },
     cupon: { type: Schema.Types.ObjectId, ref: "Cupon" },
+    transportadora: { type: String, required: true },
     total: { type: Number, required: true },
     transportadora: { type: String , required: true },
     sucursalEnvio: { type: String, required: true },
