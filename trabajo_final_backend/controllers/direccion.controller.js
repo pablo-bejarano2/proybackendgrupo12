@@ -1,7 +1,7 @@
 const Direccion = require('../models/direccion.js');
 const direccionCtrl = {};
 
-// POST: crear direccion
+// Crear direccion
 direccionCtrl.createDireccion = async (req, res) => {
     try {
         const direccion = new Direccion(req.body);
@@ -20,7 +20,7 @@ direccionCtrl.createDireccion = async (req, res) => {
     }
 };
 
-// GET: obtener direccion por id
+// Obtener direccion por id
 direccionCtrl.getDireccionById = async (req, res) => {
     try {
         const direccion = await Direccion.findById(req.params.id);
@@ -43,7 +43,7 @@ direccionCtrl.getDireccionById = async (req, res) => {
     }
 };
 
-//GET: obtener todas las direcciones
+//Obtener todas las direcciones
 direccionCtrl.getDirecciones = async (req, res) => {
     try {
         const direcciones = await Direccion.find();
@@ -60,7 +60,7 @@ direccionCtrl.getDirecciones = async (req, res) => {
     }
 };
 
-// PUT: actualizar direccion
+// Actualizar direccion
 direccionCtrl.updateDireccion = async (req, res) => {
     try {
         const direccion = await Direccion.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -84,7 +84,7 @@ direccionCtrl.updateDireccion = async (req, res) => {
     }
 };
 
-//DELETE: eliminar direccion
+//Eliminar direccion
 direccionCtrl.deleteDireccion = async (req, res) => {
     try {
         const direccion = await Direccion.findByIdAndDelete(req.params.id);

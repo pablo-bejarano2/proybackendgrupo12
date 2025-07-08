@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const URI = "mongodb://localhost/tiendaonlineDB";
+const URI = "mongodb+srv://44516075:L2aWiov3OwOYam5N@tp-final.yvs3gyd.mongodb.net/?retryWrites=true&w=majority&appName=tp-final";
 
 mongoose
   .connect(URI)

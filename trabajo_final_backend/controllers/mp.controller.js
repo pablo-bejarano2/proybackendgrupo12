@@ -62,7 +62,7 @@ mpCtrl.generateQRCode = async (req, res) => {
                     title: description,
                     description: description,
                     quantity: 1,
-                    unit_price: parseFloat(amount), // Asegurar que sea número
+                    unit_price: parseFloat(amount),
                     currency_id: "ARS"
                 }
             ],
