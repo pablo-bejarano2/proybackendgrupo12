@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const mpCtrl = require('../controllers/mp.controller');
-/*  #swagger.tags = ['Pagos Únicos']
+
+/*
+    #swagger.path = '/api/usuarios/{id}'
+    #swagger.tags = ['Pagos Únicos']
     #swagger.summary = 'Crear un link de pago único'
     #swagger.description = 'Genera una preferencia de pago simple para un producto específico y devuelve el link de checkout de Mercado Pago. Ideal para pagos de un solo producto.'
     #swagger.parameters['amount'] = {

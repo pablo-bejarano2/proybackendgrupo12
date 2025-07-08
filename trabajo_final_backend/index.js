@@ -45,7 +45,7 @@ app.use("/api/usuario", require("./routes/usuario.route"));
 app.use('/api/mp', require('./routes/mp.route.js'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use("/api/dashboard", require("./routes/dashboard.route.js"));
-
+app.use('/api/codigoPostal', require("./routes/codigoPostal.route"));
 // ---------------------------------------------
 // Configuración del puerto del servidor
 // --------------------------------------------
