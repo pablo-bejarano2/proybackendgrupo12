@@ -61,9 +61,15 @@
       "description": "Gestión de items dentro de los pedidos."
     }
   ],
-  "schemes": ["http"],
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "paths": {
     "/payment-link": {
       "get": {
@@ -224,93 +230,431 @@
         }
       }
     },
-    "/": {
+    "/api/categoria": {
       "post": {
-        "description": "",
+        "tags": [
+          "Categorías"
+        ],
+        "summary": "Crear una nueva categoria",
+        "description": "Permite crear una nueva categoria",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "body",
+            "name": "categoria",
             "in": "body",
+            "required": true,
+            "description": "Datos de la nuevacategoria",
             "schema": {
               "type": "object",
               "properties": {
-                "producto": {
-                  "example": "any"
+                "nombre": {
+                  "type": "string",
+                  "example": "Remeras"
                 },
-                "cantidad": {
-                  "example": "any"
+                "descripcion": {
+                  "type": "string",
+                  "example": "Categoria para remeras"
                 }
-              }
+              },
+              "required": [
+                "nombre",
+                "descripcion"
+              ]
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "201": {
-            "description": "Created"
+            "description": "Categoria creada exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Categoria para remeras"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "409": {
-            "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+            "description": "Conflicto: Ya existe una categoría con el mismo nombre o descripción",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Ya existe una categoría con el mismo nombre o descripción"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }
     },
-    "/{id}": {
+    "/api/categoria/": {
+      "get": {
+        "tags": [
+          "Categorías"
+        ],
+        "summary": "Obtener todas las categorías",
+        "description": "Devuelve una lista de todas las categorías disponibles en el sistema.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de categorías obtenida exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Lista de categorías"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3a"
+                      },
+                      "nombre": {
+                        "type": "string",
+                        "example": "Remeras"
+                      },
+                      "descripcion": {
+                        "type": "string",
+                        "example": "Categoria para remeras"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "No se encontraron categorías en el sistema",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "No se encontraron categorias"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categoria/{id}": {
       "delete": {
-        "description": "",
+        "tags": [
+          "Categorías"
+        ],
+        "summary": "Eliminar una categoria por ID",
+        "description": "Permite eliminar una categoria existente por su ID",
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "ID de la categoria a eliminar"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Categoria eliminada exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Categoria eliminada exitosamente"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Categoria no encontrada",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Categoria no encontrada"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
-      },
-      "put": {
-        "description": "",
+      }
+    },
+    "/api/producto/upload": {
+      "post": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Subir imágenes de producto",
+        "description": "Permite subir hasta 5 imágenes y devuelve las URLs de los archivos subidos.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
+            "name": "imagenes",
+            "in": "formData",
+            "type": "array",
             "required": true,
-            "type": "string"
+            "description": "Imágenes del producto (máx 5)",
+            "items": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imágenes subidas correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "urls": {
+                  "type": "array",
+                  "example": [
+                    "/uploads/imagen1.jpg",
+                    "/uploads/imagen2.jpg"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/producto": {
+      "post": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Crear un nuevo producto",
+        "description": "Permite crear un producto con imágenes y datos en una sola petición. Las imágenes se suben como multipart/form-data.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "imagenes",
+            "in": "formData",
+            "type": "array",
+            "required": false,
+            "description": "Imágenes del producto (máx 5)",
+            "items": {
+              "type": "file"
+            }
+          },
+          {
+            "name": "body",
+            "in": "formData",
+            "required": true,
+            "description": "Datos del producto",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nombre": {
+                  "type": "string",
+                  "example": "Remera Azul"
+                },
+                "descripcion": {
+                  "type": "string",
+                  "example": "Remera de algodón color azul"
+                },
+                "precio": {
+                  "type": "number",
+                  "example": 1500
+                },
+                "color": {
+                  "type": "string",
+                  "example": "Azul"
+                },
+                "categoria": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3a"
+                },
+                "tallas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "talla": {
+                        "type": "string",
+                        "example": "L"
+                      },
+                      "stock": {
+                        "type": "number",
+                        "example": 2
+                      }
+                    }
+                  }
+                }
+              },
+              "required": [
+                "nombre",
+                "descripcion",
+                "precio",
+                "color",
+                "categoria",
+                "tallas"
+              ]
+            }
           },
           {
             "name": "body",
@@ -318,10 +662,344 @@
             "schema": {
               "type": "object",
               "properties": {
-                "producto": {
+                "nombre": {
                   "example": "any"
                 },
-                "cantidad": {
+                "descripcion": {
+                  "example": "any"
+                },
+                "precio": {
+                  "example": "any"
+                },
+                "color": {
+                  "example": "any"
+                },
+                "categoria": {
+                  "example": "any"
+                },
+                "tallas": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Producto creado exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Producto guardado correctamente"
+                },
+                "producto": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3b"
+                    },
+                    "nombre": {
+                      "type": "string",
+                      "example": "Remera Azul"
+                    },
+                    "descripcion": {
+                      "type": "string",
+                      "example": "Remera de algodón color azul"
+                    },
+                    "precio": {
+                      "type": "number",
+                      "example": 1500
+                    },
+                    "color": {
+                      "type": "string",
+                      "example": "Azul"
+                    },
+                    "imagenes": {
+                      "type": "array",
+                      "example": [
+                        "/uploads/imagen1.jpg"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "categoria": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "tallas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "talla": {
+                            "type": "string",
+                            "example": "L"
+                          },
+                          "stock": {
+                            "type": "number",
+                            "example": 2
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Ya existe un producto con ese nombre"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Obtener todos los productos",
+        "description": "Devuelve una lista de todos los productos, incluyendo la categoría.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos obtenida exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Productos obtenidos correctamente"
+                },
+                "productos": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3b"
+                      },
+                      "nombre": {
+                        "type": "string",
+                        "example": "Remera Azul"
+                      },
+                      "descripcion": {
+                        "type": "string",
+                        "example": "Remera de algodón color azul"
+                      },
+                      "precio": {
+                        "type": "number",
+                        "example": 1500
+                      },
+                      "color": {
+                        "type": "string",
+                        "example": "Azul"
+                      },
+                      "imagenes": {
+                        "type": "array",
+                        "example": [
+                          "/uploads/imagen1.jpg"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "categoria": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3a"
+                          },
+                          "nombre": {
+                            "type": "string",
+                            "example": "Ropa"
+                          }
+                        }
+                      },
+                      "tallas": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "talla": {
+                              "type": "string",
+                              "example": "L"
+                            },
+                            "stock": {
+                              "type": "number",
+                              "example": 2
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/producto/{id}": {
+      "put": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Actualizar producto por ID",
+        "description": "Actualiza los datos de un producto existente por su ID. Si se suben nuevas imágenes, reemplaza las anteriores.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del producto"
+          },
+          {
+            "name": "imagenes",
+            "in": "formData",
+            "type": "array",
+            "required": false,
+            "description": "Nuevas imágenes del producto (máx 5)",
+            "items": {
+              "type": "file"
+            }
+          },
+          {
+            "name": "body",
+            "in": "formData",
+            "required": true,
+            "description": "Datos a actualizar del producto",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nombre": {
+                  "type": "string",
+                  "example": "Remera Azul"
+                },
+                "descripcion": {
+                  "type": "string",
+                  "example": "Remera de algodón color azul"
+                },
+                "precio": {
+                  "type": "number",
+                  "example": 1500
+                },
+                "color": {
+                  "type": "string",
+                  "example": "Azul"
+                },
+                "categoria": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3a"
+                },
+                "tallas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "talla": {
+                        "type": "string",
+                        "example": "L"
+                      },
+                      "stock": {
+                        "type": "number",
+                        "example": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nombre": {
+                  "example": "any"
+                },
+                "descripcion": {
+                  "example": "any"
+                },
+                "precio": {
+                  "example": "any"
+                },
+                "color": {
+                  "example": "any"
+                },
+                "categoria": {
+                  "example": "any"
+                },
+                "tallas": {
                   "example": "any"
                 }
               }
@@ -330,109 +1008,594 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Producto actualizado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Producto actualizado"
+                },
+                "producto": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3b"
+                    },
+                    "nombre": {
+                      "type": "string",
+                      "example": "Remera Azul"
+                    },
+                    "descripcion": {
+                      "type": "string",
+                      "example": "Remera de algodón color azul"
+                    },
+                    "precio": {
+                      "type": "number",
+                      "example": 1500
+                    },
+                    "color": {
+                      "type": "string",
+                      "example": "Azul"
+                    },
+                    "imagenes": {
+                      "type": "array",
+                      "example": [
+                        "/uploads/imagen1.jpg"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "categoria": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "tallas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "talla": {
+                            "type": "string",
+                            "example": "L"
+                          },
+                          "stock": {
+                            "type": "number",
+                            "example": 2
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Producto no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Producto no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
-          "500": {
-            "description": "Internal Server Error"
+          "409": {
+            "description": "Ya existe un producto con ese nombre",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Ya existe un producto con ese nombre"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       },
       "get": {
-        "description": "",
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Obtener producto por ID",
+        "description": "Devuelve un producto específico por su ID, incluyendo la categoría.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "ID del producto"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
+            "description": "Producto encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3b"
+                },
+                "nombre": {
+                  "type": "string",
+                  "example": "Remera Azul"
+                },
+                "descripcion": {
+                  "type": "string",
+                  "example": "Remera de algodón color azul"
+                },
+                "precio": {
+                  "type": "number",
+                  "example": 1500
+                },
+                "color": {
+                  "type": "string",
+                  "example": "Azul"
+                },
+                "imagenes": {
+                  "type": "array",
+                  "example": [
+                    "/uploads/imagen1.jpg"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "categoria": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "nombre": {
+                      "type": "string",
+                      "example": "Ropa"
+                    }
+                  }
+                },
+                "tallas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "talla": {
+                        "type": "string",
+                        "example": "M"
+                      },
+                      "stock": {
+                        "type": "number",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Producto no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Producto no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
-      }
-    },
-    "/upload": {
-      "post": {
-        "description": "",
+      },
+      "delete": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Eliminar producto por ID",
+        "description": "Elimina un producto existente por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del producto"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Producto eliminado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Producto eliminado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Producto no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }
     },
-    "/categoria/{categoriaNombre}": {
+    "/api/producto/categoria/{categoriaNombre}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Obtener productos por nombre de categoría",
+        "description": "Devuelve una lista de productos filtrados por el nombre de la categoría.",
         "parameters": [
           {
             "name": "categoriaNombre",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "Nombre de la categoría"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Productos obtenidos correctamente por categoría",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Productos obtenidos correctamente por categoría"
+                },
+                "productos": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3b"
+                      },
+                      "nombre": {
+                        "type": "string",
+                        "example": "Remera Azul"
+                      },
+                      "categoria": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3a"
+                          },
+                          "nombre": {
+                            "type": "string",
+                            "example": "Ropa"
+                          }
+                        }
+                      },
+                      "tallas": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "talla": {
+                              "type": "string",
+                              "example": "M"
+                            },
+                            "stock": {
+                              "type": "number",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Categoría no encontrada",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Categoría no encontrada"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }
     },
-    "/nombre": {
+    "/api/producto/nombre": {
       "get": {
-        "description": "",
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Buscar productos por nombre",
+        "description": "Busca productos por nombre usando el query param ?nombre=...",
         "parameters": [
           {
             "name": "nombre",
             "in": "query",
+            "required": true,
+            "description": "Nombre o parte del nombre del producto",
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Productos obtenidos correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Productos obtenidos correctamente"
+                },
+                "productos": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3b"
+                      },
+                      "nombre": {
+                        "type": "string",
+                        "example": "Remera Azul"
+                      },
+                      "tallas": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "talla": {
+                              "type": "string",
+                              "example": "S"
+                            },
+                            "stock": {
+                              "type": "number",
+                              "example": 10
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "No se encontraron productos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "No se encontraron productos"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }
     },
     "/api/usuario/": {
       "post": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Registro de nuevo usuario",
         "description": "Permite registrar un nuevo usuario.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "usuario",
@@ -539,7 +1702,9 @@
         }
       },
       "get": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Retorno de todos los usuarios",
         "description": "Obtiene la lista de todos los usuarios",
         "parameters": [
@@ -649,11 +1814,17 @@
     },
     "/api/usuario/login": {
       "post": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Inicio de sesión",
         "description": "Permite inicio de sesión con nombre de usuario y contraseña.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "credenciales",
@@ -672,7 +1843,10 @@
                   "example": "123456"
                 }
               },
-              "required": ["username", "password"]
+              "required": [
+                "username",
+                "password"
+              ]
             }
           }
         ],
@@ -806,11 +1980,17 @@
     },
     "/api/usuario/login/google": {
       "post": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Inicio de sesión con Google",
         "description": "Permite iniciar sesión con un token JWT de Google. Si el usuario no existe en la base de datos, se crea automáticamente.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "token",
@@ -825,7 +2005,9 @@
                   "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjY4MzFh..."
                 }
               },
-              "required": ["token"]
+              "required": [
+                "token"
+              ]
             }
           }
         ],
@@ -939,7 +2121,9 @@
     },
     "/api/usuario/{id}": {
       "put": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Actualización de usuario",
         "description": "Actualiza un usuario existente",
         "parameters": [
@@ -1162,7 +2346,9 @@
         ]
       },
       "delete": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Eliminación de usuario",
         "description": "Elimina un usuario existente por su ID",
         "parameters": [
@@ -1283,7 +2469,9 @@
         ]
       },
       "get": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Búsqueda de un usuario por ID",
         "description": "Obtiene un usuario por su ID",
         "parameters": [
@@ -1433,9 +2621,11 @@
         ]
       }
     },
-    "/api/usuarios/filtrado/{username}": {
+    "/api/usuario/filtrado/{username}": {
       "get": {
-        "tags": ["Usuarios"],
+        "tags": [
+          "Usuarios"
+        ],
         "summary": "Búsqueda de usuarios de acuerdo a un nombre de usuario",
         "description": "Busca usuarios por coincidencia parcial en el nombre de usuario (insensible a mayúsculas/minúsculas)",
         "parameters": [
@@ -1569,66 +2759,541 @@
         ]
       }
     },
-    "/cliente/{id}": {
+    "/api/pedido": {
+      "post": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Crear un nuevo pedido",
+        "description": "Permite crear un nuevo pedido. El cliente puede ser referenciado por ID o email. El total y el estado se calculan automáticamente.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "pedido",
+            "in": "body",
+            "required": true,
+            "description": "Datos del nuevo pedido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "example": [
+                    "60c72b2f9b1e8c001c8e4d3c"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cliente": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3a"
+                },
+                "direccion": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3d"
+                },
+                "cupon": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3e"
+                },
+                "emailCliente": {
+                  "type": "string",
+                  "example": "cliente@email.com"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pedido creado exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedido creado correctamente"
+                },
+                "pedido": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3f"
+                    },
+                    "items": {
+                      "type": "array",
+                      "example": [
+                        "60c72b2f9b1e8c001c8e4d3c"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "cliente": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "direccion": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3d"
+                    },
+                    "cupon": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3e"
+                    },
+                    "total": {
+                      "type": "number",
+                      "example": 1500
+                    },
+                    "estado": {
+                      "type": "string",
+                      "example": "pendiente"
+                    },
+                    "emailCliente": {
+                      "type": "string",
+                      "example": "cliente@email.com"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "El cliente o el email del cliente es obligatorio"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
       "get": {
-        "description": "",
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Obtener todos los pedidos",
+        "description": "Devuelve una lista de todos los pedidos, incluyendo items, dirección, cupón y cliente.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos obtenida exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedidos obtenidos correctamente"
+                },
+                "pedidos": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3f"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "_id": {
+                              "type": "string",
+                              "example": "60c72b2f9b1e8c001c8e4d3c"
+                            },
+                            "producto": {
+                              "type": "object",
+                              "properties": {
+                                "_id": {
+                                  "type": "string",
+                                  "example": "60c72b2f9b1e8c001c8e4d3b"
+                                },
+                                "nombre": {
+                                  "type": "string",
+                                  "example": "Producto X"
+                                }
+                              }
+                            },
+                            "cantidad": {
+                              "type": "number",
+                              "example": 2
+                            },
+                            "subtotal": {
+                              "type": "number",
+                              "example": 1000
+                            }
+                          }
+                        }
+                      },
+                      "cliente": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3a"
+                          },
+                          "nombre": {
+                            "type": "string",
+                            "example": "Juan"
+                          }
+                        }
+                      },
+                      "direccion": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3d"
+                          },
+                          "calle": {
+                            "type": "string",
+                            "example": "Av. Siempre Viva"
+                          }
+                        }
+                      },
+                      "cupon": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3e"
+                          },
+                          "codigo": {
+                            "type": "string",
+                            "example": "DESCUENTO10"
+                          }
+                        }
+                      },
+                      "total": {
+                        "type": "number",
+                        "example": 1500
+                      },
+                      "estado": {
+                        "type": "string",
+                        "example": "pendiente"
+                      },
+                      "emailCliente": {
+                        "type": "string",
+                        "example": "cliente@email.com"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pedido/{id}": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Obtener pedido por ID",
+        "description": "Devuelve un pedido específico por su ID, incluyendo items, dirección, cupón y cliente.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "ID del pedido"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/codigo/{codigo}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "codigo",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
-      }
-    },
-    "/aplicar": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
+            "description": "Pedido encontrado",
             "schema": {
               "type": "object",
               "properties": {
-                "codigo": {
-                  "example": "any"
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedido obtenido correctamente"
+                },
+                "pedido": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3f"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3c"
+                          },
+                          "producto": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string",
+                                "example": "60c72b2f9b1e8c001c8e4d3b"
+                              },
+                              "nombre": {
+                                "type": "string",
+                                "example": "Producto X"
+                              }
+                            }
+                          },
+                          "cantidad": {
+                            "type": "number",
+                            "example": 2
+                          },
+                          "subtotal": {
+                            "type": "number",
+                            "example": 1000
+                          }
+                        }
+                      }
+                    },
+                    "cliente": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3a"
+                        },
+                        "nombre": {
+                          "type": "string",
+                          "example": "Juan"
+                        }
+                      }
+                    },
+                    "direccion": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3d"
+                        },
+                        "calle": {
+                          "type": "string",
+                          "example": "Av. Siempre Viva"
+                        }
+                      }
+                    },
+                    "cupon": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3e"
+                        },
+                        "codigo": {
+                          "type": "string",
+                          "example": "DESCUENTO10"
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "number",
+                      "example": 1500
+                    },
+                    "estado": {
+                      "type": "string",
+                      "example": "pendiente"
+                    },
+                    "emailCliente": {
+                      "type": "string",
+                      "example": "cliente@email.com"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Pedido no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedido no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Actualizar pedido por ID",
+        "description": "Actualiza los datos de un pedido existente por su ID. El total y el cupón se recalculan automáticamente.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del pedido"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Datos a actualizar del pedido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3c"
+                      },
+                      "cantidad": {
+                        "type": "number",
+                        "example": 3
+                      }
+                    }
+                  }
+                },
+                "direccion": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3d"
+                },
+                "cupon": {
+                  "type": "object",
+                  "properties": {
+                    "codigo": {
+                      "type": "string",
+                      "example": "DESCUENTO10"
+                    }
+                  }
+                },
+                "estado": {
+                  "type": "string",
+                  "example": "enviado"
                 }
               }
             }
@@ -1636,13 +3301,2357 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Pedido actualizado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedido actualizado correctamente"
+                },
+                "pedido": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3f"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3c"
+                          },
+                          "producto": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string",
+                                "example": "60c72b2f9b1e8c001c8e4d3b"
+                              },
+                              "nombre": {
+                                "type": "string",
+                                "example": "Producto X"
+                              }
+                            }
+                          },
+                          "cantidad": {
+                            "type": "number",
+                            "example": 3
+                          },
+                          "subtotal": {
+                            "type": "number",
+                            "example": 1500
+                          }
+                        }
+                      }
+                    },
+                    "cliente": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3a"
+                        },
+                        "nombre": {
+                          "type": "string",
+                          "example": "Juan"
+                        }
+                      }
+                    },
+                    "direccion": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3d"
+                        },
+                        "calle": {
+                          "type": "string",
+                          "example": "Av. Siempre Viva"
+                        }
+                      }
+                    },
+                    "cupon": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3e"
+                        },
+                        "codigo": {
+                          "type": "string",
+                          "example": "DESCUENTO10"
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "number",
+                      "example": 1350
+                    },
+                    "estado": {
+                      "type": "string",
+                      "example": "enviado"
+                    },
+                    "emailCliente": {
+                      "type": "string",
+                      "example": "cliente@email.com"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Uno o más items no existen"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Pedido no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedido no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Eliminar pedido por ID",
+        "description": "Elimina un pedido existente por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del pedido"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pedido eliminado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedido eliminado correctamente"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Pedido no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedido no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pedido/cliente/{id}": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Obtener pedidos por ID de cliente",
+        "description": "Devuelve todos los pedidos realizados por un cliente específico.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del cliente"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pedidos encontrados",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Pedidos obtenidos correctamente"
+                },
+                "pedidos": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3f"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "_id": {
+                              "type": "string",
+                              "example": "60c72b2f9b1e8c001c8e4d3c"
+                            },
+                            "producto": {
+                              "type": "object",
+                              "properties": {
+                                "_id": {
+                                  "type": "string",
+                                  "example": "60c72b2f9b1e8c001c8e4d3b"
+                                },
+                                "nombre": {
+                                  "type": "string",
+                                  "example": "Producto X"
+                                }
+                              }
+                            },
+                            "cantidad": {
+                              "type": "number",
+                              "example": 2
+                            },
+                            "subtotal": {
+                              "type": "number",
+                              "example": 1000
+                            }
+                          }
+                        }
+                      },
+                      "cliente": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3a"
+                          },
+                          "nombre": {
+                            "type": "string",
+                            "example": "Juan"
+                          }
+                        }
+                      },
+                      "direccion": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3d"
+                          },
+                          "calle": {
+                            "type": "string",
+                            "example": "Av. Siempre Viva"
+                          }
+                        }
+                      },
+                      "cupon": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3e"
+                          },
+                          "codigo": {
+                            "type": "string",
+                            "example": "DESCUENTO10"
+                          }
+                        }
+                      },
+                      "total": {
+                        "type": "number",
+                        "example": 1500
+                      },
+                      "estado": {
+                        "type": "string",
+                        "example": "pendiente"
+                      },
+                      "emailCliente": {
+                        "type": "string",
+                        "example": "cliente@email.com"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "No se encontraron pedidos para este usuario",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "No se encontraron pedidos para este usuario"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/direccion": {
+      "post": {
+        "tags": [
+          "Direcciones"
+        ],
+        "summary": "Crear una nueva dirección",
+        "description": "Permite crear una nueva dirección.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "direccion",
+            "in": "body",
+            "required": true,
+            "description": "Datos de la nueva dirección",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "calle": {
+                  "type": "string",
+                  "example": "Av. Siempre Viva"
+                },
+                "numero": {
+                  "type": "number",
+                  "example": 742
+                },
+                "ciudad": {
+                  "type": "string",
+                  "example": "Springfield"
+                },
+                "provincia": {
+                  "type": "string",
+                  "example": "Buenos Aires"
+                },
+                "codigoPostal": {
+                  "type": "string",
+                  "example": "1234"
+                },
+                "pais": {
+                  "type": "string",
+                  "example": "Argentina"
+                },
+                "usuario": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3a"
+                }
+              },
+              "required": [
+                "calle",
+                "numero",
+                "ciudad",
+                "provincia",
+                "codigoPostal",
+                "pais",
+                "usuario"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Dirección creada exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Dirección guardada correctamente"
+                },
+                "direccion": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "calle": {
+                      "type": "string",
+                      "example": "Av. Siempre Viva"
+                    },
+                    "numero": {
+                      "type": "number",
+                      "example": 742
+                    },
+                    "ciudad": {
+                      "type": "string",
+                      "example": "Springfield"
+                    },
+                    "provincia": {
+                      "type": "string",
+                      "example": "Buenos Aires"
+                    },
+                    "codigoPostal": {
+                      "type": "string",
+                      "example": "1234"
+                    },
+                    "pais": {
+                      "type": "string",
+                      "example": "Argentina"
+                    },
+                    "usuario": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Direcciones"
+        ],
+        "summary": "Obtener todas las direcciones",
+        "description": "Devuelve una lista de todas las direcciones registradas.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de direcciones obtenida exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "direcciones": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3a"
+                      },
+                      "calle": {
+                        "type": "string",
+                        "example": "Av. Siempre Viva"
+                      },
+                      "numero": {
+                        "type": "number",
+                        "example": 742
+                      },
+                      "ciudad": {
+                        "type": "string",
+                        "example": "Springfield"
+                      },
+                      "provincia": {
+                        "type": "string",
+                        "example": "Buenos Aires"
+                      },
+                      "codigoPostal": {
+                        "type": "string",
+                        "example": "1234"
+                      },
+                      "pais": {
+                        "type": "string",
+                        "example": "Argentina"
+                      },
+                      "usuario": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3a"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/direccion/{id}": {
+      "get": {
+        "tags": [
+          "Direcciones"
+        ],
+        "summary": "Obtener dirección por ID",
+        "description": "Devuelve una dirección específica por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID de la dirección"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dirección encontrada",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "direccion": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "calle": {
+                      "type": "string",
+                      "example": "Av. Siempre Viva"
+                    },
+                    "numero": {
+                      "type": "number",
+                      "example": 742
+                    },
+                    "ciudad": {
+                      "type": "string",
+                      "example": "Springfield"
+                    },
+                    "provincia": {
+                      "type": "string",
+                      "example": "Buenos Aires"
+                    },
+                    "codigoPostal": {
+                      "type": "string",
+                      "example": "1234"
+                    },
+                    "pais": {
+                      "type": "string",
+                      "example": "Argentina"
+                    },
+                    "usuario": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Dirección no encontrada",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Dirección no encontrada"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Direcciones"
+        ],
+        "summary": "Actualizar dirección por ID",
+        "description": "Actualiza los datos de una dirección existente por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID de la dirección"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Datos a actualizar de la dirección",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "calle": {
+                  "type": "string",
+                  "example": "Av. Siempre Viva"
+                },
+                "numero": {
+                  "type": "number",
+                  "example": 123
+                },
+                "ciudad": {
+                  "type": "string",
+                  "example": "Springfield"
+                },
+                "provincia": {
+                  "type": "string",
+                  "example": "Buenos Aires"
+                },
+                "codigoPostal": {
+                  "type": "string",
+                  "example": "1234"
+                },
+                "pais": {
+                  "type": "string",
+                  "example": "Argentina"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dirección actualizada correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Dirección actualizada correctamente"
+                },
+                "direccion": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "calle": {
+                      "type": "string",
+                      "example": "Av. Siempre Viva"
+                    },
+                    "numero": {
+                      "type": "number",
+                      "example": 123
+                    },
+                    "ciudad": {
+                      "type": "string",
+                      "example": "Springfield"
+                    },
+                    "provincia": {
+                      "type": "string",
+                      "example": "Buenos Aires"
+                    },
+                    "codigoPostal": {
+                      "type": "string",
+                      "example": "1234"
+                    },
+                    "pais": {
+                      "type": "string",
+                      "example": "Argentina"
+                    },
+                    "usuario": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Dirección no encontrada",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Dirección no encontrada"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Direcciones"
+        ],
+        "summary": "Eliminar dirección por ID",
+        "description": "Elimina una dirección existente por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID de la dirección"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dirección eliminada correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Dirección eliminada correctamente"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Dirección no encontrada",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Dirección no encontrada"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cupon": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "summary": "Crear un nuevo cupón",
+        "description": "Permite crear un nuevo cupón.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "cupon",
+            "in": "body",
+            "required": true,
+            "description": "Datos del nuevo cupón",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "codigo": {
+                  "type": "string",
+                  "example": "DESCUENTO10"
+                },
+                "nombre": {
+                  "type": "string",
+                  "example": "Descuento 10%"
+                },
+                "descuento": {
+                  "type": "number",
+                  "example": 10
+                },
+                "fechaExpiracion": {
+                  "type": "string",
+                  "example": "2025-12-31T00:00:00.000Z"
+                },
+                "activo": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "usosMaximos": {
+                  "type": "number",
+                  "example": 100
+                },
+                "usosRestantes": {
+                  "type": "number",
+                  "example": 100
+                }
+              },
+              "required": [
+                "codigo",
+                "nombre",
+                "descuento",
+                "fechaExpiracion",
+                "activo",
+                "usosMaximos",
+                "usosRestantes"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Cupón creado exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón guardado correctamente"
+                },
+                "cupon": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "codigo": {
+                      "type": "string",
+                      "example": "DESCUENTO10"
+                    },
+                    "nombre": {
+                      "type": "string",
+                      "example": "Descuento 10%"
+                    },
+                    "descuento": {
+                      "type": "number",
+                      "example": 10
+                    },
+                    "fechaExpiracion": {
+                      "type": "string",
+                      "example": "2025-12-31T00:00:00.000Z"
+                    },
+                    "activo": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "usosMaximos": {
+                      "type": "number",
+                      "example": 100
+                    },
+                    "usosRestantes": {
+                      "type": "number",
+                      "example": 100
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Cupones"
+        ],
+        "summary": "Obtener todos los cupones",
+        "description": "Devuelve una lista de todos los cupones.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de cupones obtenida exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "cupones": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3a"
+                      },
+                      "codigo": {
+                        "type": "string",
+                        "example": "DESCUENTO10"
+                      },
+                      "nombre": {
+                        "type": "string",
+                        "example": "Descuento 10%"
+                      },
+                      "descuento": {
+                        "type": "number",
+                        "example": 10
+                      },
+                      "fechaExpiracion": {
+                        "type": "string",
+                        "example": "2025-12-31T00:00:00.000Z"
+                      },
+                      "activo": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "usosMaximos": {
+                        "type": "number",
+                        "example": 100
+                      },
+                      "usosRestantes": {
+                        "type": "number",
+                        "example": 100
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cupon/{id}": {
+      "get": {
+        "tags": [
+          "Cupones"
+        ],
+        "summary": "Obtener cupón por ID",
+        "description": "Devuelve un cupón específico por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del cupón"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cupón encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "cupon": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "codigo": {
+                      "type": "string",
+                      "example": "DESCUENTO10"
+                    },
+                    "nombre": {
+                      "type": "string",
+                      "example": "Descuento 10%"
+                    },
+                    "descuento": {
+                      "type": "number",
+                      "example": 10
+                    },
+                    "fechaExpiracion": {
+                      "type": "string",
+                      "example": "2025-12-31T00:00:00.000Z"
+                    },
+                    "activo": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "usosMaximos": {
+                      "type": "number",
+                      "example": 100
+                    },
+                    "usosRestantes": {
+                      "type": "number",
+                      "example": 100
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Cupón no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cupones"
+        ],
+        "summary": "Actualizar cupón por ID",
+        "description": "Actualiza los datos de un cupón existente por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del cupón"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Datos a actualizar del cupón",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nombre": {
+                  "type": "string",
+                  "example": "Descuento 20%"
+                },
+                "descuento": {
+                  "type": "number",
+                  "example": 20
+                },
+                "fechaExpiracion": {
+                  "type": "string",
+                  "example": "2025-12-31T00:00:00.000Z"
+                },
+                "activo": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "usosMaximos": {
+                  "type": "number",
+                  "example": 200
+                },
+                "usosRestantes": {
+                  "type": "number",
+                  "example": 200
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cupón actualizado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón actualizado correctamente"
+                },
+                "cupon": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "codigo": {
+                      "type": "string",
+                      "example": "DESCUENTO10"
+                    },
+                    "nombre": {
+                      "type": "string",
+                      "example": "Descuento 20%"
+                    },
+                    "descuento": {
+                      "type": "number",
+                      "example": 20
+                    },
+                    "fechaExpiracion": {
+                      "type": "string",
+                      "example": "2025-12-31T00:00:00.000Z"
+                    },
+                    "activo": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "usosMaximos": {
+                      "type": "number",
+                      "example": 200
+                    },
+                    "usosRestantes": {
+                      "type": "number",
+                      "example": 200
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Cupón no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cupones"
+        ],
+        "summary": "Eliminar cupón por ID",
+        "description": "Elimina un cupón existente por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del cupón"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cupón eliminado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón eliminado correctamente"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Cupón no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cupon/codigo/{codigo}": {
+      "get": {
+        "tags": [
+          "Cupones"
+        ],
+        "summary": "Obtener cupón por código",
+        "description": "Devuelve un cupón específico por su código.",
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Código del cupón"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cupón encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "cupon": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3a"
+                    },
+                    "codigo": {
+                      "type": "string",
+                      "example": "DESCUENTO10"
+                    },
+                    "nombre": {
+                      "type": "string",
+                      "example": "Descuento 10%"
+                    },
+                    "descuento": {
+                      "type": "number",
+                      "example": 10
+                    },
+                    "fechaExpiracion": {
+                      "type": "string",
+                      "example": "2025-12-31T00:00:00.000Z"
+                    },
+                    "activo": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "usosMaximos": {
+                      "type": "number",
+                      "example": 100
+                    },
+                    "usosRestantes": {
+                      "type": "number",
+                      "example": 100
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o datos incorrectos",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Cupón no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cupon/aplicar": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "summary": "Aplicar cupón",
+        "description": "Valida y aplica un cupón por su código. Verifica si está activo, no ha expirado y existe.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "body",
+            "required": true,
+            "description": "Código del cupón a aplicar",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "codigo": {
+                  "type": "string",
+                  "example": "DESCUENTO10"
+                }
+              },
+              "required": [
+                "codigo"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cupón aplicado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón aplicado correctamente"
+                },
+                "descuento": {
+                  "type": "number",
+                  "example": 10
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Cupón no activo, expirado o error de validación",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón no está activo o ha expirado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Cupón no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Cupón no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/itempedido": {
+      "post": {
+        "tags": [
+          "ItemsPedido"
+        ],
+        "summary": "Crear un nuevo item de pedido",
+        "description": "Permite crear un nuevo item de pedido. Calcula el subtotal automáticamente según el producto y la cantidad.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "itemPedido",
+            "in": "body",
+            "required": true,
+            "description": "Datos del nuevo item de pedido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "producto": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3a"
+                },
+                "cantidad": {
+                  "type": "number",
+                  "example": 2
+                },
+                "pedido": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3b"
+                }
+              },
+              "required": [
+                "producto",
+                "cantidad",
+                "pedido"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Item de pedido creado exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Item de pedido guardado correctamente"
+                },
+                "itemPedido": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3c"
+                    },
+                    "producto": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3a"
+                        },
+                        "nombre": {
+                          "type": "string",
+                          "example": "Producto X"
+                        },
+                        "precio": {
+                          "type": "number",
+                          "example": 500
+                        }
+                      }
+                    },
+                    "cantidad": {
+                      "type": "number",
+                      "example": 2
+                    },
+                    "pedido": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3b"
+                    },
+                    "subtotal": {
+                      "type": "number",
+                      "example": 1000
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Producto no encontrado o error de validación",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Producto no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "ItemsPedido"
+        ],
+        "summary": "Obtener todos los items de pedido",
+        "description": "Devuelve una lista de todos los items de pedido, incluyendo información del producto.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de items de pedido obtenida exitosamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Items de pedido obtenidos correctamente"
+                },
+                "itemsPedido": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3c"
+                      },
+                      "producto": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "60c72b2f9b1e8c001c8e4d3a"
+                          },
+                          "nombre": {
+                            "type": "string",
+                            "example": "Producto X"
+                          },
+                          "precio": {
+                            "type": "number",
+                            "example": 500
+                          }
+                        }
+                      },
+                      "cantidad": {
+                        "type": "number",
+                        "example": 2
+                      },
+                      "pedido": {
+                        "type": "string",
+                        "example": "60c72b2f9b1e8c001c8e4d3b"
+                      },
+                      "subtotal": {
+                        "type": "number",
+                        "example": 1000
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/itempedido/{id}": {
+      "get": {
+        "tags": [
+          "ItemsPedido"
+        ],
+        "summary": "Obtener item de pedido por ID",
+        "description": "Devuelve un item de pedido específico por su ID, incluyendo información del producto.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del item de pedido"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item de pedido encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Item de pedido obtenido correctamente"
+                },
+                "itemPedido": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3c"
+                    },
+                    "producto": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3a"
+                        },
+                        "nombre": {
+                          "type": "string",
+                          "example": "Producto X"
+                        },
+                        "precio": {
+                          "type": "number",
+                          "example": 500
+                        }
+                      }
+                    },
+                    "cantidad": {
+                      "type": "number",
+                      "example": 2
+                    },
+                    "pedido": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3b"
+                    },
+                    "subtotal": {
+                      "type": "number",
+                      "example": 1000
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Item de pedido no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Item de pedido no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ItemsPedido"
+        ],
+        "summary": "Actualizar item de pedido por ID",
+        "description": "Actualiza los datos de un item de pedido existente por su ID. Calcula el subtotal automáticamente.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del item de pedido"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Datos a actualizar del item de pedido",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "producto": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3a"
+                },
+                "cantidad": {
+                  "type": "number",
+                  "example": 3
+                },
+                "pedido": {
+                  "type": "string",
+                  "example": "60c72b2f9b1e8c001c8e4d3b"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item de pedido actualizado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Item de pedido actualizado correctamente"
+                },
+                "itemPedido": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3c"
+                    },
+                    "producto": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "60c72b2f9b1e8c001c8e4d3a"
+                        },
+                        "nombre": {
+                          "type": "string",
+                          "example": "Producto X"
+                        },
+                        "precio": {
+                          "type": "number",
+                          "example": 500
+                        }
+                      }
+                    },
+                    "cantidad": {
+                      "type": "number",
+                      "example": 3
+                    },
+                    "pedido": {
+                      "type": "string",
+                      "example": "60c72b2f9b1e8c001c8e4d3b"
+                    },
+                    "subtotal": {
+                      "type": "number",
+                      "example": 1500
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Producto no encontrado o error de validación",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Producto no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Item de pedido no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Item de pedido no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ItemsPedido"
+        ],
+        "summary": "Eliminar item de pedido por ID",
+        "description": "Elimina un item de pedido existente por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del item de pedido"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item de pedido eliminado correctamente",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "OK"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Item de pedido eliminado correctamente"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "Item de pedido no encontrado",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Item de pedido no encontrado"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ERROR"
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Error procesando operación"
+                },
+                "causa": {
+                  "type": "string",
+                  "example": "Descripción del error específico"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }
@@ -1658,7 +5667,10 @@
         },
         "required": {
           "type": "array",
-          "example": ["amount", "description"],
+          "example": [
+            "amount",
+            "description"
+          ],
           "items": {
             "type": "string"
           }
@@ -1876,7 +5888,12 @@
                 },
                 "enum": {
                   "type": "array",
-                  "example": ["pending", "approved", "rejected", "cancelled"],
+                  "example": [
+                    "pending",
+                    "approved",
+                    "rejected",
+                    "cancelled"
+                  ],
                   "items": {
                     "type": "string"
                   }
@@ -2758,7 +6775,10 @@
                 },
                 "enum": {
                   "type": "array",
-                  "example": ["payment", "merchant_order"],
+                  "example": [
+                    "payment",
+                    "merchant_order"
+                  ],
                   "items": {
                     "type": "string"
                   }
