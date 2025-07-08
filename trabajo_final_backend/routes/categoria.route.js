@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/",
     /*
         #swagger.path = '/api/categoria'
-        #swagger.tags = ['Categoria']
+        #swagger.tags = ['Categorías']
         #swagger.summary = 'Crear una nueva categoria'
         #swagger.description = 'Permite crear una nueva categoria'
         #swagger.consumes = ['application/json']
@@ -90,7 +90,7 @@ router.get("/",
 router.delete("/:id"
     /*
         #swagger.path = '/api/categoria/{id}'
-        #swagger.tags = ['Categoria']
+        #swagger.tags = ['Categorías']
         #swagger.summary = 'Eliminar una categoria por ID'
         #swagger.description = 'Permite eliminar una categoria existente por su ID'
         #swagger.produces = ['application/json']
