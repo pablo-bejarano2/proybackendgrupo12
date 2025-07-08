@@ -15,3 +15,5 @@ tmp/
 temp/
 
 # Otros archivos
+# Ignorar archivos y carpetas de MongoDB
+data/db/data/
