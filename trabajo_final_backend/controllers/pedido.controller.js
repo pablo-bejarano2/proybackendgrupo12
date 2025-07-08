@@ -2,10 +2,11 @@ const Pedido = require('../models/pedido.js');
 
 const PedidoController = {};
 
+//Crea un nuevo pedido
 PedidoController.createPedido = async (req, res) => {
     try {
         const { items, cliente } = req.body;
-        
+        //Requiere email si no existe el cliente
         if(!cliente && !req.body.emailCliente) {
             return res.status(400).json({ 
                 status: 'ERROR',
@@ -13,6 +14,7 @@ PedidoController.createPedido = async (req, res) => {
             });
         }
         let emailD = null;
+        //Utiliza los datos del cliente si existe.
         if(cliente) {
             const clienteObj = await Pedido.model('Usuario').findById(cliente);
             if (!clienteObj) {
@@ -27,13 +29,14 @@ PedidoController.createPedido = async (req, res) => {
         }
         total = 0;
         const cupon = req.body.cupon || null;
-
+        //Requiere que los items existan
         if (!items || items.length === 0) {
             return res.status(400).json({
                 status: 'ERROR',
                 msg: 'El pedido debe contener al menos un item'
             });
         }
+        //Controla que los items dados existan en la base de datos
         const itemsDocs = await Pedido.model('ItemPedido').find({ _id: { $in: items } });
         if (itemsDocs.length !== items.length) {
             return res.status(400).json({
@@ -44,7 +47,7 @@ PedidoController.createPedido = async (req, res) => {
         for (const item of itemsDocs) {
             total += item.subtotal || 0;
         } 
-        
+        //Comprueba si el cupón existe y aplica el descuento
         if(cupon) {
             cuponDoc = await Pedido.model('Cupon').findById(cupon);
             if (!cuponDoc) {
@@ -56,6 +59,7 @@ PedidoController.createPedido = async (req, res) => {
             const descuento = cuponDoc.descuento || 0;
             total -= (total*descuento)/100;
         }
+        //Crea el pedido
         const pedido = new Pedido({
             ...req.body,
             total: total || 0,
@@ -77,7 +81,7 @@ PedidoController.createPedido = async (req, res) => {
         });
     }
 }
-
+//Obtiene todos los pedidos
 PedidoController.getPedidos = async (req, res) => {
     try {
         const pedidos = await Pedido.find()
@@ -98,7 +102,7 @@ PedidoController.getPedidos = async (req, res) => {
         });
     }
 }
-
+//Obtiene un pedido por su ID
 PedidoController.getPedidoById = async (req, res) => {
     try {
         const pedido = await Pedido.findById(req.params.id)
@@ -125,7 +129,7 @@ PedidoController.getPedidoById = async (req, res) => {
         });
     }
 }
-
+//Obtiene los pedidos de un usuario por su ID
 PedidoController.getPedidoByUsserId = async (req, res) => {
     try {
         const { id } = req.params;
@@ -153,6 +157,7 @@ PedidoController.getPedidoByUsserId = async (req, res) => {
         });
     }
 }
+//Actualiza un pedido por su ID
 PedidoController.updatePedido = async (req, res) => {
     try {
         const { items, cupon } = req.body;
@@ -166,7 +171,7 @@ PedidoController.updatePedido = async (req, res) => {
                 msg: 'El pedido debe contener al menos un item'
             });
         }
-
+        //Controla que los items dados existan.
         for (const itemFront of items) {
             const itemDoc = await Pedido.model('ItemPedido').findById(itemFront._id);
             if (!itemDoc) continue;
@@ -179,7 +184,7 @@ PedidoController.updatePedido = async (req, res) => {
                 { cantidad, subtotal }
             );
         }
-
+        //
         const itemsDocs = await Pedido.model('ItemPedido').find({ _id: { $in: items.map(i=>i._id) } });
         if (itemsDocs.length !== items.length) {
             return res.status(400).json({
@@ -239,7 +244,7 @@ PedidoController.updatePedido = async (req, res) => {
         });
     }
 }   
-
+//Elimina un pedido por su ID
 PedidoController.deletePedido = async (req, res) => {
     try {
 
